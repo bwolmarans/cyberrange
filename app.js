@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express();
+var ida = [];
 global.globaltoken = "this will be our WAFaaS login token";
 
 // Load the AWS SDK for Node.js
@@ -14,14 +15,20 @@ app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-app.post('/startstop_aws_instance', function (req, res) {
-    var name = req.body.firstName + ' ' + req.body.lastName;
-
+app.post('/describe_aws_instances', function (req, res) {
 // Create EC2 service object
 var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
 
 var params = {
-  DryRun: false
+  DryRun: false,
+  Filters: [
+        {
+            Name: 'tag:dartboard',
+            Values: [
+                'badstore'
+            ]
+        }
+    ]
 };
 
 // Call EC2 to retrieve policy for selected bucket
@@ -29,17 +36,60 @@ ec2.describeInstances(params, function(err, data) {
   if (err) {
     console.log("Error", err.stack);
   } else {
-    console.log("Success", JSON.stringify(data));
+    const sss = JSON.stringify(data, null, 4);
+    console.log(sss);
+    console.log('----------------contoso------------------');
+   // const ppp = JSON.parse(data);
+    //console.log(data.Reservations[0].Instances[0].InstanceId);
+    const iii = data.Reservations[0].Instances;
+    for(let ii of iii){console.log(ii.InstanceId);}
+    //console.log("Success", data);
   }
 });
+});
+
+
+app.post('/startstop_aws_instance', function (req, res) {
+
+// Create EC2 service object
+var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
+var params = {
+  DryRun: false,
+  Filters: [
+        {
+            Name: 'tag:' + req.body.tagname,
+            Values: [
+                req.body.tagvalue
+            ]
+        }
+    ]
+};
+
+// Call EC2 to retrieve policy for selected bucket
+ec2.describeInstances(params, function(err, data) {
+  if (err) {
+    console.log("Error", err.stack);
+  } else {
+    //const sss = JSON.stringify(data, null, 4);
+    //console.log(sss);
+    //console.log('----------------contoso------------------');
+   // const ppp = JSON.parse(data);
+    //console.log(data.Reservations[0].Instances[0].InstanceId);
+    const iii = data.Reservations[0].Instances;
+    ida = [];
+    //sloppy assignment of variable ida without preceding it with var or const makes it global, conveniently
+    for(let ii of iii){var iid = ii.InstanceId;ida.push(iid);console.log(iid);}
+    //console.log("Success", data);
+  }
+});
+
+if ( ida.length > 0 ) {
  var params = {
-  InstanceIds: [
-     req.body.lastName
-  ],
+  InstanceIds:ida,
   DryRun: true
  };
 
-if (req.body.firstName.toUpperCase() === "START") {
+if (req.body.action.toUpperCase() === "START") {
   // Call EC2 to start the selected instances
   ec2.startInstances(params, function(err, data) {
     if (err && err.code == 'DryRunOperation') {
@@ -49,13 +99,14 @@ if (req.body.firstName.toUpperCase() === "START") {
             console.log("Error", err);
           } else if (data) {
             console.log("Success", data.StartingInstances);
+            res.send('Success: ' + JSON.stringify(data.StartingInstances));
           }
       });
     } else {
       console.log(err.code + " You don't have permission to start instances.");
     }
   });
-} else if (req.body.firstName.toUpperCase() === "STOP") {
+} else if (req.body.action.toUpperCase() === "STOP") {
   // Call EC2 to stop the selected instances
   ec2.stopInstances(params, function(err, data) {
     if (err && err.code === 'DryRunOperation') {
@@ -65,6 +116,7 @@ if (req.body.firstName.toUpperCase() === "START") {
             console.log("Error", err);
           } else if (data) {
             console.log("Success", data.StoppingInstances);
+            res.send('Success: ' + JSON.stringify(data.StoppingInstances));
           }
       });
     } else {
@@ -72,8 +124,10 @@ if (req.body.firstName.toUpperCase() === "START") {
     }
   });
 }
+} else {
+res.send('uh, we don\'t have no ida yet. Go back and try again.');
+}
 
-    res.send(name + ' Submitted Successfully!');
 });
 
 
@@ -207,3 +261,4 @@ app.delete('/delete-data', function (req, res) {
 var server = app.listen(3000, function () {
     console.log('Node server is running..');
 });
+[centos@ip-10-0-1-234 myapp]$
