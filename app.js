@@ -1,3 +1,4 @@
+[centos@ip-10-0-1-234 myapp]$ cat app.js
 var express = require('express');
 var app = express();
 var ida = [];
@@ -137,11 +138,14 @@ res.send('uh, we don\'t have no ida yet. Go back and try again.');
 
 app.post('/login', function (req, res) {
     res.send('Now attempting to login to Barracuda WAFaaS');
+console.log(req.body.username)
+console.log(req.body.password)
+
 var querystring = require('querystring');
 var https = require('https');
 var postData = querystring.stringify({
-    'email': 'waas-student01@bugbug.me',
-    'password': 'serenitynow_insanitylater'
+    'email': req.body.username,
+    'password': req.body.password
 });
 var options = {
   hostname: 'api.waas.barracudanetworks.com',
@@ -170,7 +174,9 @@ var req2 = https.request(options, (res2) => {
   });
 });
 
-req2.write('email=waas-student01%40bugbug.me&password=serenitynow_insanitylater');
+//req2.write('email=waas-student01%40bugbug.me&password=serenitynow_insanitylater');
+console.log('email=' + encodeURIComponent(req.body.username) + '&password=' + encodeURIComponent(req.body.password));
+ req2.write('email=' + encodeURIComponent(req.body.username) + '&password=' + encodeURIComponent(req.body.password));
 req2.on('error', (e) => {
   console.error(e);
 });
