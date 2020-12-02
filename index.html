@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <form action="/startstop_aws_instance" method="post">
+        START/STOP: <input name="firstName" type="text" /> <br />
+        EC2 Instance ID: <input name="lastName" type="text" /> <br />
+        <input type="submit" />
+    </form>
+    <form action="/login" method="post">
+        Username: <input name="username" type="text" /> <br />
+        Password: <input name="password" type="text" /> <br />
+        <input type="submit" value="Login to WAFaaS"/>
+    </form>
+    <form action="/list_apps" method="post">
+        Host Name FQDN: <input name="hostname" type="text" /> <br />
+        URL Path ( excluding hostname ): <input name="urlpath" type="text" /> <br />
+        API Token: <input name="token" type="text" /> <br />
+        <input type="submit" value="List Applications"/>
+    </form>
+</body>
+</html>
