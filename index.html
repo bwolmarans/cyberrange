@@ -7,8 +7,9 @@
 </head>
 <body>
     <form action="/startstop_aws_instance" method="post">
-        START/STOP: <input name="firstName" type="text" /> <br />
-        EC2 Instance ID: <input name="lastName" type="text" /> <br />
+        START/STOP: <input name="action" type="text" /> <br />
+        EC2 Tag Name: <input name="tagname" type="text" /> <br />
+        EC2 Tag Value: <input name="tagvalue" type="text" /> <br />
         <input type="submit" />
     </form>
     <form action="/login" method="post">
@@ -22,5 +23,11 @@
         API Token: <input name="token" type="text" /> <br />
         <input type="submit" value="List Applications"/>
     </form>
+    <form action="/describe_aws_instances" method="post">
+        <input type="submit" value="Describe Instances"/>
+    </form>
+</body>
+</html>
+
 </body>
 </html>
