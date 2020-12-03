@@ -3,6 +3,7 @@ var express = require('express');
 var app = express();
 var ida = [];
 global.globaltoken = "this will be our WAFaaS login token";
+global.appid_array = [];
 
 // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
@@ -137,7 +138,6 @@ res.send('uh, we don\'t have no ida yet. Go back and try again.');
 //});
 
 app.post('/login', function (req, res) {
-    res.send('Now attempting to login to Barracuda WAFaaS');
 console.log(req.body.username)
 console.log(req.body.password)
 
@@ -170,6 +170,7 @@ var req2 = https.request(options, (res2) => {
     console.log('---------------The below should be the API key / token YAY!-------------------------------------');
     console.log(auth_api);
     global.globaltoken = auth_api;
+    res.send(auth_api);
     console.log('----------------------------------------------------');
   });
 });
@@ -181,87 +182,102 @@ req2.on('error', (e) => {
   console.error(e);
 });
 
-//curl -x POST "https://api.waas.barracudanetworks.com/v2/waasapi/api_login/" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "email=waas-student01%40bugbug.me&password=serenitynow_insanitylater"
+//curl -X POST "https://api.waas.barracudanetworks.com/v2/waasapi/api_login/" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "email=waas-student01%40bugbug.me&password=serenitynow_insanitylater"
 //curl -X GET "https://api.waas.barracudanetworks.com/v2/waasapi/applications/" -H "accept: application/json" -H "auth-api: eyJhY2NfaWQiOiAxMDk1OTMwMSwgInVzZXJfaWQiOiA4NDE4NDE1NCwgImV4cGlyYXRpb24iOiAxNjA2ODU4Nzk4fQ==.dba1fecf39fc2c8c2cb8f67bc1fdbdf1829277ed9cc84630ff6e132ffcabff04"
 
 });
 
-app.post('/uuulist_apps', function (req, res) {
-console.log(globaltoken);
 
-const https = require('https');
+app.post('/delete_apps', function (req, res) {
 
-const options2 = {
-  hostname: 'api.waas.barracudanetworks.com',
-  port: 443,
-  path: '/v2/waasapi/applications/',
-  method: 'GET',
-  headers: {
-       'accept': 'application/json',
-       'auth-api': 'eyJhY2NfaWQiOiAxMDk1OTMwMSwgInVzZXJfaWQiOiA4NDE4NDE1NCwgImV4cGlyYXRpb24iOiAxNjA2ODY4Mzk0fQ==.5b6b9948b1b8d4fe29f578aa4065fa4f3f616bb027bbffd9fc6deafc4ecf32aa'
-     }
-};
+        list_apps(req, res);
+        for (var i = 0; i < appid_array.length; i++) {
+                console.log(appid_array[i]);
+        }
 
-https.get('https://api.waas.barracudanetworks.com/v2/waasapi/applications/', (resp) => {
-console.log('statusCode:', resp.statusCode);
-  console.log('headers:', resp.headers);
+    var https = require('https')
 
-  let data = '';
+    appid_array.forEach(function(appid) {
 
-  // A chunk of data has been recieved.
-  resp.on('data', (chunk) => {
-    data += chunk;
-  });
+        let xxx = "api.waas.barracudanetworks.com";
+        let lll = '/v2/waasapi/applications/' + appid + '/';
+        console.log("~~~~~~~~~~```````````````````````````````````````~~~~~~~~~~~~~~~~~");
+        console.log("deleting " + xxx + " " + lll);
+        console.log("~~~~~~~~~~```````````````````````````````````````~~~~~~~~~~~~~~~~~");
 
-  // The whole response has been received. Print out the result.
-  resp.on('end', () => {
+        var options3 = {
+          hostname: req.body.hostname,
+          port: 443,
+          path: lll,
+          method: 'DELETE',
+          headers: {
+               'accept': 'application/json',
+               'auth-api': globaltoken
+                }
+        }
+        var ireqi = https.request(options3, res4 => {
+        console.log('statusCode: '+ res4.statusCode);
+        });
 
-    console.log(JSON.parse(data).explanation);
-  });
+        ireqi.on('error', error => {
+          console.error(error)
+        })
 
-}).on("error", (err) => {
-  console.log("Error: " + err.message);
+        ireqi.end();
+
+        });
+    res.send("ok");
+
 });
-});
+
+
+function list_apps() {
+    var https = require('https')
+
+    var options = {
+      hostname: 'api.waas.barracudanetworks.com',
+      port: 443,
+      path: '/v2/waasapi/applications/',
+      method: 'GET',
+      headers: {
+           'accept': 'application/json',
+           'auth-api': globaltoken
+         }
+    }
+
+    var reqi = https.request(options, res2 => {
+      console.log("List_Apps statusCode: " + res2.statusCode)
+
+      res2.on('data', d => {
+        d = JSON.parse(d);
+        var ressis = d.results;
+        for(var r of ressis) {
+            console.log("Here in list apps and the app named " + r.name + " has an I.D. of -> " + r.id);
+            appid_array.push(r.id);
+        }
+      })
+    })
+
+    reqi.on('error', error => {
+      console.error(error)
+    });
+
+    reqi.end();
+}
+
 
 
 app.post('/list_apps', function (req, res) {
-res.send('Now attempting to list the applications');
-
-const https = require('https')
-const options = {
-  hostname: req.body.hostname,
-  port: 443,
-  path: req.body.urlpath,
-  method: 'GET',
-  headers: {
-       'accept': 'application/json',
-       'auth-api': globaltoken
-     }
-}
-
-const reqi = https.request(options, res => {
-  console.log(`statusCode: ${res.statusCode}`)
-
-  res.on('data', d => {
-    process.stdout.write(d)
-  })
-})
-
-reqi.on('error', error => {
-  console.error(error)
-})
-
-reqi.end()
-
+        list_apps();
+        for (var i = 0; i < appid_array.length; i++) {
+        console.log("ummm -> " + appid_array[i]);
+        }
+    res.end();
 });
+
 
 app.put('/update-data', function (req, res) {
     res.send('PUT Request');
-});
-
-app.delete('/delete-data', function (req, res) {
-    res.send('DELETE Request');
 });
 
 var server = app.listen(3000, function () {
