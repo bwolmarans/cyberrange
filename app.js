@@ -1,9 +1,10 @@
 [centos@ip-10-0-1-234 myapp]$ cat app.js
 var express = require('express');
 var app = express();
-var ida = [];
-global.globaltoken = "this will be our WAFaaS login token";
-global.appid_array = [];
+var instance_ids_array = [];
+var https = require('https');
+var login_token = "this will be our WAFaaS login token";
+var appid_array = [];
 
 // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
@@ -53,8 +54,6 @@ ec2.describeInstances(params, function(err, data) {
 
 app.post('/startstop_aws_instance', function (req, res) {
 
-// Create EC2 service object
-var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
 var params = {
   DryRun: false,
   Filters: [
@@ -66,8 +65,18 @@ var params = {
         }
     ]
 };
+build_instance_array(params);
+console.log("gee I sure wish we could wait before getting here!");
 
-// Call EC2 to retrieve policy for selected bucket
+
+setTimeout(() => { start_stop_em(req.body.action); }, 3000);
+
+});
+
+
+function build_instance_array(params) {
+instance_ids_array = [];
+var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
 ec2.describeInstances(params, function(err, data) {
   if (err) {
     console.log("Error", err.stack);
@@ -80,18 +89,22 @@ ec2.describeInstances(params, function(err, data) {
     const iii = data.Reservations[0].Instances;
     ida = [];
     //sloppy assignment of variable ida without preceding it with var or const makes it global, conveniently
-    for(let ii of iii){var iid = ii.InstanceId;ida.push(iid);console.log(iid);}
+    for(let ii of iii){var iid = ii.InstanceId;console.log("building adding this brick here ------> " + iid);instance_ids_array.push(iid);}
     //console.log("Success", data);
   }
+  console.log("Hi there ->" + instance_ids_array);
 });
+}
 
-if ( ida.length > 0 ) {
+function start_stop_em(action) {
+var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
  var params = {
-  InstanceIds:ida,
+  InstanceIds:instance_ids_array,
   DryRun: true
  };
 
-if (req.body.action.toUpperCase() === "START") {
+if (action.toUpperCase() === "START") {
+  console.log("starting instances");
   // Call EC2 to start the selected instances
   ec2.startInstances(params, function(err, data) {
     if (err && err.code == 'DryRunOperation') {
@@ -100,15 +113,16 @@ if (req.body.action.toUpperCase() === "START") {
           if (err) {
             console.log("Error", err);
           } else if (data) {
-            console.log("Success", data.StartingInstances);
-            res.send('Success: ' + JSON.stringify(data.StartingInstances));
+            console.log("Starting Instances good!", data.StartingInstances);
+            //res.send('Success: ' + JSON.stringify(data.StartingInstances));
           }
       });
     } else {
       console.log(err.code + " You don't have permission to start instances.");
     }
   });
-} else if (req.body.action.toUpperCase() === "STOP") {
+} else if (action.toUpperCase() === "STOP") {
+  console.log("stopping instances");
   // Call EC2 to stop the selected instances
   ec2.stopInstances(params, function(err, data) {
     if (err && err.code === 'DryRunOperation') {
@@ -118,7 +132,7 @@ if (req.body.action.toUpperCase() === "START") {
             console.log("Error", err);
           } else if (data) {
             console.log("Success", data.StoppingInstances);
-            res.send('Success: ' + JSON.stringify(data.StoppingInstances));
+            //res.send('Success: ' + JSON.stringify(data.StoppingInstances));
           }
       });
     } else {
@@ -126,11 +140,7 @@ if (req.body.action.toUpperCase() === "START") {
     }
   });
 }
-} else {
-res.send('uh, we don\'t have no ida yet. Go back and try again.');
 }
-
-});
 
 
 //app.get('/', function (req, res) {
@@ -142,7 +152,6 @@ console.log(req.body.username)
 console.log(req.body.password)
 
 var querystring = require('querystring');
-var https = require('https');
 var postData = querystring.stringify({
     'email': req.body.username,
     'password': req.body.password
@@ -166,11 +175,10 @@ var req2 = https.request(options, (res2) => {
     process.stdout.write(d);
     console.log('');
     var dobj = JSON.parse(d);
-    var auth_api = dobj.key;
+    login_token = dobj.key;
     console.log('---------------The below should be the API key / token YAY!-------------------------------------');
-    console.log(auth_api);
-    global.globaltoken = auth_api;
-    res.send(auth_api);
+    console.log(login_token);
+    res.send(login_token);
     console.log('----------------------------------------------------');
   });
 });
@@ -187,15 +195,7 @@ req2.on('error', (e) => {
 
 });
 
-
-app.post('/delete_apps', function (req, res) {
-
-        list_apps(req, res);
-        for (var i = 0; i < appid_array.length; i++) {
-                console.log(appid_array[i]);
-        }
-
-    var https = require('https')
+function delete_apps() {
 
     appid_array.forEach(function(appid) {
 
@@ -205,34 +205,33 @@ app.post('/delete_apps', function (req, res) {
         console.log("deleting " + xxx + " " + lll);
         console.log("~~~~~~~~~~```````````````````````````````````````~~~~~~~~~~~~~~~~~");
 
-        var options3 = {
-          hostname: req.body.hostname,
+        var options = {
+          hostname: xxx,
           port: 443,
           path: lll,
           method: 'DELETE',
           headers: {
                'accept': 'application/json',
-               'auth-api': globaltoken
+               'auth-api': login_token
                 }
         }
-        var ireqi = https.request(options3, res4 => {
-        console.log('statusCode: '+ res4.statusCode);
+        var req = https.request(options, res => {
+                console.log('statusCode: '+ res.statusCode);
         });
 
-        ireqi.on('error', error => {
-          console.error(error)
-        })
-
-        ireqi.end();
+        req.on('error', error => { console.error(error) })
+        req.end();
 
         });
-    res.send("ok");
+}
 
+
+app.post('/delete_apps', function (req, res) {
+        delete_apps()
 });
 
 
 function list_apps() {
-    var https = require('https')
 
     var options = {
       hostname: 'api.waas.barracudanetworks.com',
@@ -241,38 +240,41 @@ function list_apps() {
       method: 'GET',
       headers: {
            'accept': 'application/json',
-           'auth-api': globaltoken
+           'auth-api': login_token
          }
     }
 
-    var reqi = https.request(options, res2 => {
+    var req = https.request(options, res2 => {
       console.log("List_Apps statusCode: " + res2.statusCode)
 
       res2.on('data', d => {
         d = JSON.parse(d);
+        console.log('hello');
+        console.log(login_token);
+console.log(d);
         var ressis = d.results;
         for(var r of ressis) {
             console.log("Here in list apps and the app named " + r.name + " has an I.D. of -> " + r.id);
             appid_array.push(r.id);
         }
+        display_app_array();
+        delete_apps();
       })
     })
 
-    reqi.on('error', error => {
-      console.error(error)
-    });
+    req.on('error', error => { console.error(error) });
+    req.end();
+}
 
-    reqi.end();
+function display_app_array() {
+        for (var i = 0; i < appid_array.length; i++) {
+                console.log("ummm -> " + appid_array[i]);
+        }
 }
 
 
-
 app.post('/list_apps', function (req, res) {
-        list_apps();
-        for (var i = 0; i < appid_array.length; i++) {
-        console.log("ummm -> " + appid_array[i]);
-        }
-    res.end();
+    list_apps();
 });
 
 
@@ -284,3 +286,6 @@ var server = app.listen(3000, function () {
     console.log('Node server is running..');
 });
 [centos@ip-10-0-1-234 myapp]$
+
+
+
