@@ -21,8 +21,12 @@
     <form action="/list_apps" method="post">
         Host Name FQDN: <input name="hostname" type="text" /> <br />
         URL Path ( excluding hostname ): <input name="urlpath" type="text" /> <br />
-        API Token: <input name="token" type="text" /> <br />
         <input type="submit" value="List Applications"/>
+    </form>
+    <form action="/delete_apps" method="post">
+        Host Name FQDN: <input name="hostname" type="text" /> <br />
+        URL Path ( excluding hostname ): <input name="urlpath" type="text" /> <br />
+        <input type="submit" value="Toast all the applications"/>
     </form>
     <form action="/describe_aws_instances" method="post">
         <input type="submit" value="Describe Instances"/>
