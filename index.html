@@ -1,36 +1,138 @@
 [centos@ip-10-0-1-234 myapp]$ cat index.html
 <!DOCTYPE html>
-
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <title></title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.hero-image {
+  background-image: url("background.png");
+  background-color: #cccccc;
+  height: 710px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+}
+
+.list-text {
+padding-top:0px;
+line-height: 2.6;
+  font-size: large;;
+  font-stretch: expanded;
+text-align: left;
+  position: relative;
+  top: 10%;
+  color: white;
+text-shadow: 0px 1px 1px #555;
+background-image: url("background.png.old");
+}
+
+.normal-text {
+  text-align: left;
+  position: relative;
+  top: 10%;
+  color: white;
+text-shadow: 0px 1px 1px #555;
+  text-align: left;
+background-image: url("background.png.old");
+}
+.form-text {
+  text-align: left;
+  position: relative;
+  top: 21%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+text-shadow: 0px 1px 1px #555;
+}
+.hero-text {
+  text-align: left;
+  position: relative;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-shadow: 2px 4px 6px #555;
+margin-top: -25px;
+}
+#header {
+background: url(header-image.png) no-repeat;
+color: #36567c;
+width: 1980px;
+height: 120px;
+margin-bottom: 0px;
+}
+
+</style>
 </head>
 <body>
+<div id="header">.</div>
+<div class="hero-image">
+  <div class="hero-text">
+    <h2> CudaThon 2020 Dream Team presents...</h2>
+    <h1 style="font-size:50px">WAFaaS LABaaS</h1>
+  </div>
+<div class="normal-text">
+Partner Edition. Beta Version 4.0<br>
+This self-service lab allows Barracud SE's to spin up/spin down a WAFaaS training lab for partners.<br>
+You can get started by starting the ec2 instances that have a value of badstore for the dartboard tag. <br>
+<br>
+</div>
+<br>
+<div class="list-text">
+Step 1: Start the backend EC2 Instances that are tagged with badstore<br>
     <form action="/startstop_aws_instance" method="post">
-        START/STOP: <input name="action" type="text" /> <br />
-        EC2 Tag Name: <input name="tagname" type="text" /> <br />
-        EC2 Tag Value: <input name="tagvalue" type="text" /> <br />
-        <input type="submit" />
+    <input type="submit" value="Start Badstore"/>
+    <input type="hidden" name="action" value="start">
+     </form>
+Step 2: Login to WAFaaS using waas-student<01 through 08>@bugbug.me / serenitynow_insanitylater<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;        For example, if you are student 3, your login name will be waas-student03@bugbug.me<br>
+    <form action="/login" method="post" target="https://waas.barracudanetworks.com/applications">
+        Username: <input name="username" type="text" value="waas-student01@bugbug.me"/> Password: <input name="password" type="text" value="serenitynow_insanitylater"/> <input type="submit" value="Login to WAFaaS"/>
     </form>
-    <form action="/login" method="post">
-        Username: <input name="username" type="text" /> <br />
-        Password: <input name="password" type="text" /> <br />
-        <input type="submit" value="Login to WAFaaS"/>
-    </form>
-    <form action="/list_apps" method="post">
-        Host Name FQDN: <input name="hostname" type="text" /> <br />
-        URL Path ( excluding hostname ): <input name="urlpath" type="text" /> <br />
-        <input type="submit" value="List Applications"/>
-    </form>
+Step 3: Delete the existing WAFaaS configuration so you can start fresh!
     <form action="/delete_apps" method="post">
-        Host Name FQDN: <input name="hostname" type="text" /> <br />
-        URL Path ( excluding hostname ): <input name="urlpath" type="text" /> <br />
-        <input type="submit" value="Toast all the applications"/>
+        <input type="submit" value="Start Fresh!"/>
     </form>
+Step 4: Click here to login to WAFaaS and start driving.
+Step 5: Click here for the lab guide.
+</div>
+<br>
+<br>
+<br>
+<div class="form-text">
+    <form action="/startstop_aws_instance" method="post">
+  <input type="radio" name="action" value="start"> Start <input type="radio" name="action" value="stop" checked="checked"> Stop
+        EC2 Tag Name: <input name="tagname" type="text" value="dartboard"/> EC2 Tag Value: <input name="tagvalue" type="text" value="badstore"/> <input type="submit" value="Start / Stop EC2 Instances ( stop to save $$$)"/>
+    </form>
+<br>
+    <form action="/login" method="post" target="_blank">
+        Username: <input name="username" type="text" value="student01@bugbug.me"/> Password: <input name="password" type="text" value="serenitynow_insanitylater"/> <input type="submit" value="Login to WAFaaS"/>
+    </form>
+<br>
+    <form action="/list_apps" method="post">
+        Host Name FQDN: <input name="hostname" type="text" /> URL Path ( excluding hostname ): <input name="urlpath" type="text" /> <input type="submit" value="List Applications"/>
+    </form>
+<br>
+    <form action="/delete_apps" method="post">
+        Host Name FQDN: <input name="hostname" type="text" /> URL Path ( excluding hostname ): <input name="urlpath" type="text" /> <input type="submit" value="Toast all the applications"/>
+    </form>
+<br>
+<br>
     <form action="/describe_aws_instances" method="post">
         <input type="submit" value="Describe Instances"/>
     </form>
+<br>
+<br>
+</div>
+</div>
 </body>
 </html>
 
