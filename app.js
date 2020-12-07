@@ -51,50 +51,44 @@ ec2.describeInstances(params, function(err, data) {
 });
 });
 
-
 app.post('/startstop_aws_instance', function (req, res) {
-
-var params = {
-  DryRun: false,
-  Filters: [
+        var params = {
+                DryRun: false,
+                Filters: [
         {
             Name: 'tag:' + req.body.tagname,
             Values: [
                 req.body.tagvalue
             ]
         }
-    ]
-};
-build_instance_array(params);
-console.log("gee I sure wish we could wait before getting here!");
-
-
-setTimeout(() => { start_stop_em(req.body.action); }, 3000);
-
+        ]
+        };
+    console.log("OK we clicked the mouse");
+        start_stop_wrapper(req.body.action, params);
 });
 
+async function start_stop_wrapper(action, params) {
+        console.log("we are now going to try to wait for the array to be built");
+        const results = await build_instance_array(params);
+    console.log(results);
+    console.log("we are not going to start or stop em");
+        start_stop_em(action);
+        console.log("we have done our starting or stopping as it were");
+}
 
 function build_instance_array(params) {
-instance_ids_array = [];
-var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
-ec2.describeInstances(params, function(err, data) {
-  if (err) {
-    console.log("Error", err.stack);
-  } else {
-    //const sss = JSON.stringify(data, null, 4);
-    //console.log(sss);
-    //console.log('----------------contoso------------------');
-   // const ppp = JSON.parse(data);
-    //console.log(data.Reservations[0].Instances[0].InstanceId);
-    const iii = data.Reservations[0].Instances;
-    ida = [];
-    //sloppy assignment of variable ida without preceding it with var or const makes it global, conveniently
-    for(let ii of iii){var iid = ii.InstanceId;console.log("building adding this brick here ------> " + iid);instance_ids_array.push(iid);}
-    //console.log("Success", data);
-  }
-  console.log("Hi there ->" + instance_ids_array);
-});
-}
+        instance_ids_array = [];
+        return new Promise(resolve => {
+                var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
+                ec2.describeInstances(params, function(err, data) {
+                        if (err) { console.log("Error", err.stack); } else {
+                        const iii = data.Reservations[0].Instances;
+                        for(let ii of iii){var iid = ii.InstanceId;console.log("building adding this brick here ------> " + iid);instance_ids_array.push(iid);}
+                                resolve("Resolved! " + instance_ids_array);
+                        }
+                });
+        });
+};
 
 function start_stop_em(action) {
 var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
@@ -286,6 +280,3 @@ var server = app.listen(3000, function () {
     console.log('Node server is running..');
 });
 [centos@ip-10-0-1-234 myapp]$
-
-
-
