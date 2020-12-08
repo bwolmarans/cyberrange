@@ -1,3 +1,4 @@
+[centos@ip-10-0-1-234 myapp]$
 [centos@ip-10-0-1-234 myapp]$ cat index.html
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -65,7 +66,7 @@ margin-top: -25px;
 #header {
 background: url(header-image.png) no-repeat;
 color: #36567c;
-width: 1980px;
+width: 2500px;
 height: 120px;
 margin-bottom: 0px;
 }
@@ -82,18 +83,18 @@ margin-bottom: 0px;
 <div class="normal-text">
 Partner Edition. Beta Version 4.0<br>
 This self-service lab allows Barracud SE's to spin up/spin down a WAFaaS training lab for partners.<br>
-You can get started by starting the ec2 instances that have a value of badstore for the dartboard tag. <br>
+You are going to use Petstore and Badstore as your target applications to attack.<br>
 <br>
 </div>
 <br>
 <div class="list-text">
-Step 1: Start the backend EC2 Instances that are tagged with badstore<br>
+Step 1: Start the backend targets that are running Petstore and Badstore<br>
     <form action="/startstop_aws_instance" method="post">
-    <input type="submit" value="Start Badstore"/>
+    <input type="submit" value="Start Instances"/>
     <input type="hidden" name="action" value="start">
      </form>
     <form action="/startstop_aws_instance" method="post">
-    <input type="submit" value="Stop Badstore ( save $$$ in cloud costs )"/>
+    <input type="submit" value="Stop Instances (save cloud $$$)"/>
     <input type="hidden" name="action" value="stop">
      </form>
 Step 2: Login to WAFaaS using waas-student<01 through 09>@bugbug.me / serenitynow_insanitylater. For example, for student 3, your login name will be waas-student03@bugbug.me<br>
@@ -183,3 +184,5 @@ Step 5: Click here for <a href="https://barracudacorp-my.sharepoint.com/:w:/g/pe
 
 </body>
 </html>
+
+[centos@ip-10-0-1-234 myapp]$
