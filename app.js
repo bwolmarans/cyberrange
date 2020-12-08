@@ -1,6 +1,6 @@
-
-[root@ip-10-0-1-234 myapp]#
-[root@ip-10-0-1-234 myapp]# cat app.js
+[centos@ip-10-0-1-234 myapp]$
+[centos@ip-10-0-1-234 myapp]$
+[centos@ip-10-0-1-234 myapp]$ cat app.js
 var express = require('express');
 global.globalres = '';
 var events = require('events');
@@ -29,7 +29,19 @@ app.use(express.static(process.env.PWD + '/public'));
 // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
 // Set the region
-AWS.config.update({region: 'us-east-1'});
+//AWS.config.update({region: 'us-east-1'});
+console.log(process.env.AWS_ACCESS_KEY_ID);
+console.log(process.env.AWS_SECRET_ACCESS_KEY);
+// NOTE: Have to run sudo to get node to run ports less than 1024, then have to run sudo with dash capital E to get centos users environment variables so sudo -E node app.js
+const awsconfig = {
+    apiVersion: "2010-12-01",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    accessSecretKey: process.env.AWS_SECRET_ACCESS_KEY,
+    region: "us-east-1"
+}
+AWS.config.update(awsconfig);
+//<- If you want send something to your bucket, you need take off the region settings, because the S3 are global.
+
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -338,7 +350,8 @@ const credentials = {
 var httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
 
-httpServer.listen(8080);
+httpServer.listen(80);
 httpsServer.listen(443);
+console.log("running");
 
-[root@ip-10-0-1-234 myapp]#
+[centos@ip-10-0-1-234 myapp]$
