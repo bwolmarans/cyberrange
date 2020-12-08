@@ -1,10 +1,21 @@
 [centos@ip-10-0-1-234 myapp]$ cat app.js
 var express = require('express');
+global.globalres = '';
+var events = require('events');
+var eventEmitter = new events.EventEmitter();
+
 var app = express();
 var instance_ids_array = [];
 var https = require('https');
 var login_token = "this will be our WAFaaS login token";
 var appid_array = [];
+var achetml = 'List of Application IDs<br>---------------------------<br>';
+// At the top of your server.js
+process.env.PWD = process.cwd()
+
+// Then
+app.use(express.static(process.env.PWD + '/public'));
+
 
 // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
@@ -56,22 +67,26 @@ app.post('/startstop_aws_instance', function (req, res) {
                 DryRun: false,
                 Filters: [
         {
-            Name: 'tag:' + req.body.tagname,
+            Name: 'tag:' + 'dartboard',
             Values: [
-                req.body.tagvalue
+                'badstore'
             ]
         }
         ]
         };
     console.log("OK we clicked the mouse");
         start_stop_wrapper(req.body.action, params);
+    res.writeHead(204);
+    //res.end("We did your action: " + req.body.action);
+    res.end();
+
 });
 
 async function start_stop_wrapper(action, params) {
         console.log("we are now going to try to wait for the array to be built");
         const results = await build_instance_array(params);
     console.log(results);
-    console.log("we are not going to start or stop em");
+    console.log("we are going to start or stop em");
         start_stop_em(action);
         console.log("we have done our starting or stopping as it were");
 }
@@ -84,7 +99,7 @@ function build_instance_array(params) {
                         if (err) { console.log("Error", err.stack); } else {
                         const iii = data.Reservations[0].Instances;
                         for(let ii of iii){var iid = ii.InstanceId;console.log("building adding this brick here ------> " + iid);instance_ids_array.push(iid);}
-                                resolve("Resolved! " + instance_ids_array);
+                                resolve("building of EC2 instances Resolved! " + instance_ids_array);
                         }
                 });
         });
@@ -172,8 +187,11 @@ var req2 = https.request(options, (res2) => {
     login_token = dobj.key;
     console.log('---------------The below should be the API key / token YAY!-------------------------------------');
     console.log(login_token);
-    res.send(login_token);
+    //res.send(login_token);
     console.log('----------------------------------------------------');
+res.writeHead(302, { 'Location': 'https://waas.barracudanetworks.com/applications' });
+    //res.end("We did your action: " + req.body.action);
+    res.end();
   });
 });
 
@@ -186,18 +204,14 @@ req2.on('error', (e) => {
 
 //curl -X POST "https://api.waas.barracudanetworks.com/v2/waasapi/api_login/" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "email=waas-student01%40bugbug.me&password=serenitynow_insanitylater"
 //curl -X GET "https://api.waas.barracudanetworks.com/v2/waasapi/applications/" -H "accept: application/json" -H "auth-api: eyJhY2NfaWQiOiAxMDk1OTMwMSwgInVzZXJfaWQiOiA4NDE4NDE1NCwgImV4cGlyYXRpb24iOiAxNjA2ODU4Nzk4fQ==.dba1fecf39fc2c8c2cb8f67bc1fdbdf1829277ed9cc84630ff6e132ffcabff04"
-
 });
 
-function delete_apps() {
-
+function delete_apps(res2) {
     appid_array.forEach(function(appid) {
 
         let xxx = "api.waas.barracudanetworks.com";
         let lll = '/v2/waasapi/applications/' + appid + '/';
-        console.log("~~~~~~~~~~```````````````````````````````````````~~~~~~~~~~~~~~~~~");
         console.log("deleting " + xxx + " " + lll);
-        console.log("~~~~~~~~~~```````````````````````````````````````~~~~~~~~~~~~~~~~~");
 
         var options = {
           hostname: xxx,
@@ -211,66 +225,80 @@ function delete_apps() {
         }
         var req = https.request(options, res => {
                 console.log('statusCode: '+ res.statusCode);
-        });
-
-        req.on('error', error => { console.error(error) })
-        req.end();
+                        const index = appid_array.indexOf(appid);
+                        if (index > -1) { appid_array.splice(index, 1); }
 
         });
+
+                req.on('error', error => { console.error(error) })
+                req.end();
+
+    });
+    res2.writeHead(204);
+    res2.end();
 }
 
 
 app.post('/delete_apps', function (req, res) {
-        delete_apps()
+    if (appid_array.length == 0) { list_apps(); }
+        delete_apps(res);
 });
 
 
 function list_apps() {
-
+        return new Promise(resolve => {
+        console.log("I promise")
     var options = {
-      hostname: 'api.waas.barracudanetworks.com',
-      port: 443,
-      path: '/v2/waasapi/applications/',
-      method: 'GET',
-      headers: {
-           'accept': 'application/json',
-           'auth-api': login_token
-         }
-    }
-
-    var req = https.request(options, res2 => {
-      console.log("List_Apps statusCode: " + res2.statusCode)
-
-      res2.on('data', d => {
-        d = JSON.parse(d);
-        console.log('hello');
-        console.log(login_token);
-console.log(d);
-        var ressis = d.results;
-        for(var r of ressis) {
-            console.log("Here in list apps and the app named " + r.name + " has an I.D. of -> " + r.id);
-            appid_array.push(r.id);
+        hostname: 'api.waas.barracudanetworks.com',
+        port: 443,
+        path: '/v2/waasapi/applications/',
+        method: 'GET',
+        headers: {
+            'accept': 'application/json',
+            'auth-api': login_token
         }
-        display_app_array();
-        delete_apps();
-      })
-    })
+    }
+        appid_array.length = 0;
+    var req = https.request(options, res => {
+        console.log("List_Apps statusCode: " + res.statusCode)
+        //console.log('headers:', res.headers);
+
+        let chunks = [];
+        res.on('data', d => { chunks.push(d); })
+                res.on('end', function() {
+                        let data = Buffer.concat(chunks);
+                        let d = JSON.parse(data);
+                        var ressis = d.results;
+                        achetml = 'List of Application IDs<br>---------------------------<br>';
+                        for(var r of ressis) {
+                                console.log("About to push to array an appid of -> " + r.id);
+                                appid_array.push(r.id);
+                                achetml = achetml + 'name: ' + r.name + ' id: ' + r.id + '<br>'
+                        }
+                        console.log("OK I build it");
+                        resolve("list apps Resolved! " + appid_array);
+        })
+        })
 
     req.on('error', error => { console.error(error) });
     req.end();
-}
-
-function display_app_array() {
-        for (var i = 0; i < appid_array.length; i++) {
-                console.log("ummm -> " + appid_array[i]);
-        }
+    })
 }
 
 
 app.post('/list_apps', function (req, res) {
-    list_apps();
+    globalres = res;
+    list_apps_async_wrapper_bullshit();
+        // what happens in the bullshit stays in the bullshit
 });
 
+async function list_apps_async_wrapper_bullshit() {
+        const results = await list_apps();
+        console.log("=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+        console.log(results);
+        console.log("=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+        globalres.send(achetml);
+}
 
 app.put('/update-data', function (req, res) {
     res.send('PUT Request');
