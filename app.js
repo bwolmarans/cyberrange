@@ -1,12 +1,21 @@
-[centos@ip-10-0-1-234 myapp]$ cat app.js
+
+[root@ip-10-0-1-234 myapp]#
+[root@ip-10-0-1-234 myapp]# cat app.js
 var express = require('express');
 global.globalres = '';
 var events = require('events');
 var eventEmitter = new events.EventEmitter();
 
 var app = express();
+var redirectToHTTPS = require('express-http-to-https').redirectToHTTPS
+// Don't redirect if the hostname is `localhost:port` or the route is `/insecure`
+app.use(redirectToHTTPS([/localhost:(\d{4})/], [/\/insecure/], 301));
+
 var instance_ids_array = [];
 var https = require('https');
+var http = require('http');
+var fs = require('fs');
+
 var login_token = "this will be our WAFaaS login token";
 var appid_array = [];
 var achetml = 'List of Application IDs<br>---------------------------<br>';
@@ -269,14 +278,17 @@ function list_apps() {
                         let data = Buffer.concat(chunks);
                         let d = JSON.parse(data);
                         var ressis = d.results;
+                        if(ressis){
                         achetml = 'List of Application IDs<br>---------------------------<br>';
                         for(var r of ressis) {
                                 console.log("About to push to array an appid of -> " + r.id);
                                 appid_array.push(r.id);
                                 achetml = achetml + 'name: ' + r.name + ' id: ' + r.id + '<br>'
                         }
-                        console.log("OK I build it");
                         resolve("list apps Resolved! " + appid_array);
+                        } else {
+                                console.log("no apps found, maybe you did not log in ?");
+                        }
         })
         })
 
@@ -304,7 +316,29 @@ app.put('/update-data', function (req, res) {
     res.send('PUT Request');
 });
 
-var server = app.listen(3000, function () {
-    console.log('Node server is running..');
-});
-[centos@ip-10-0-1-234 myapp]$
+//var server = app.listen(3000, function () {
+//    console.log('Node server is running..');
+//});
+//var privateKey  = fs.readFileSync('key.pem', 'utf8');
+//var certificate = fs.readFileSync('cert.pem', 'utf8');
+//var credentials = {key: privateKey, cert: certificate};
+// Certificate
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/labaas.cudathon.com/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/labaas.cudathon.com/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/labaas.cudathon.com/chain.pem', 'utf8');
+
+const credentials = {
+        key: privateKey,
+        cert: certificate,
+        ca: ca
+};
+
+// your express configuration here
+
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
+
+httpServer.listen(8080);
+httpsServer.listen(443);
+
+[root@ip-10-0-1-234 myapp]#
