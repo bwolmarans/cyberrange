@@ -1,5 +1,4 @@
 [centos@ip-10-0-1-234 myapp]$
-[centos@ip-10-0-1-234 myapp]$
 [centos@ip-10-0-1-234 myapp]$ cat app.js
 var express = require('express');
 global.globalres = '';
@@ -81,6 +80,40 @@ ec2.describeInstances(params, function(err, data) {
     //console.log("Success", data);
   }
 });
+});
+
+app.get('/start_backend', function (req, res) {
+    var params = {
+        DryRun: false,
+        Filters: [
+        {
+            Name: 'tag:' + 'dartboard',
+            Values: [
+                'badstore'
+            ]
+        }
+        ]
+    };
+    start_stop_wrapper('start', params);
+    res.writeHead(204);
+    res.end();
+});
+
+app.get('/stop_backend', function (req, res) {
+    var params = {
+        DryRun: false,
+        Filters: [
+        {
+            Name: 'tag:' + 'dartboard',
+            Values: [
+                'badstore'
+            ]
+        }
+        ]
+    };
+    start_stop_wrapper('stop', params);
+    res.writeHead(204);
+    res.end();
 });
 
 app.post('/startstop_aws_instance', function (req, res) {
@@ -260,7 +293,7 @@ function delete_apps(res2) {
 }
 
 
-app.post('/delete_apps', function (req, res) {
+app.get('/delete_apps', function (req, res) {
     if (appid_array.length == 0) { list_apps(); }
         delete_apps(res);
 });
@@ -291,11 +324,11 @@ function list_apps() {
                         let d = JSON.parse(data);
                         var ressis = d.results;
                         if(ressis){
-                        achetml = 'List of Application IDs<br>---------------------------<br>';
+                        achetml = 'List of Apps: ';
                         for(var r of ressis) {
                                 console.log("About to push to array an appid of -> " + r.id);
                                 appid_array.push(r.id);
-                                achetml = achetml + 'name: ' + r.name + ' id: ' + r.id + '<br>'
+                                achetml = achetml + 'name: ' + r.name + ' id: ' + r.id + ', '
                         }
                         resolve("list apps Resolved! " + appid_array);
                         } else {
@@ -310,19 +343,24 @@ function list_apps() {
 }
 
 
-app.post('/list_apps', function (req, res) {
+app.get('/list_apps', function (req, res) {
     globalres = res;
-    list_apps_async_wrapper_bullshit();
-        // what happens in the bullshit stays in the bullshit
+    list_apps_async_wrapper_bullshit(res);
+        // this bullshit returns immediately ... holy cow
 });
 
-async function list_apps_async_wrapper_bullshit() {
+async function list_apps_async_wrapper_bullshit(res) {
         const results = await list_apps();
         console.log("=-=-=-=-=-=-=-=-=-=-=-=-=-=");
         console.log(results);
+        //globalres.send(achetml);
+        res.send(achetml);
         console.log("=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-        globalres.send(achetml);
 }
+
+app.get('/gimme_da_list', function (req, res) {
+        res.send(achetml);
+});
 
 app.put('/update-data', function (req, res) {
     res.send('PUT Request');
@@ -355,3 +393,4 @@ httpsServer.listen(443);
 console.log("running");
 
 [centos@ip-10-0-1-234 myapp]$
+
