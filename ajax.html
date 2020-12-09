@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div id="demoooo">
+
+<h2>The XMLHttpRequest Object</h2>
+
+<button type="button" onclick="doAjax('ajax_info.txt', Function1)">get ajax info</button>
+<button type="button" onclick="doAjax('ajax_info.txt', Function2)">do something else</button>
+</div>
+<div id="demo">
+</div>
+
+<script>
+function doAjax(url, cFunction) {
+  var xhttp;
+  xhttp=new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      cFunction(this);
+    }
+  };
+  xhttp.open("GET", url, true);
+  xhttp.send();
+}
+function Function1(xhttp) {
+  document.getElementById("demo").innerHTML =
+  xhttp.responseText;
+}
+function Function2(xhttp) {
+  document.getElementById("demo").innerHTML =
+  "sadfasdfasdfasdf";
+}
+</script>
+</body>
+</html>
