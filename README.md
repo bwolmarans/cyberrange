@@ -1,3 +1,18 @@
+
+export AWS_PROFILE=testuser
+export AWS_DEFAULT_REGION=us-east-1
+export AWS_SECRET_ACCESS_KEY=secret
+export AWS_ACCESS_KEY_ID=access
+
+sudo -E node app.js
+
+
+
+[centos@ip-10-0-1-234 myapp]$ ls public
+1V5Iz9a.png  background.png  background.png.old  header-image.png  header-image.png.old  magic.js
+[centos@ip-10-0-1-234 myapp]$
+
+
 app.js  ec2-startstopinstance-via-post.js  index.html  node_modules  package.json  package-lock.json
 [centos@ip-10-0-1-234 myapp]$
 [centos@ip-10-0-1-234 myapp]$
