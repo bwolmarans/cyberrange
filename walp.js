@@ -45,6 +45,11 @@ var querystring = require('querystring');
 var login_token = '';
 var appid_array = [];
 
+function dream1() { console.log("dream1"); create_app('death_on_the_nile_dot_edu'); setTimeout(dream2, 3000); }
+function dream2() { console.log("dream2"); create_app('before_the_flood_dot_cc'); setTimeout(dream3, 3000); }
+function dream3() { console.log("dream3"); create_app('express_app_dot_com'); }
+
+
 function list_apps() {
     console.log("List_apps login_token: " + login_token);
     var options = {
@@ -109,8 +114,8 @@ function login() {
             console.log('---------------The below should be the API key / token YAY!-------------------------------------');
             console.log(login_token);
             console.log('----------------------------------------------------');
-            create_apps();
-            list_apps();
+            setTimeout(dream1,3000);  
+          list_apps();
         });
 
 
@@ -128,7 +133,7 @@ function login() {
 
 }
 
-function create_apps() {
+function create_app(appname) {
 
     var body = JSON.stringify(
         {
@@ -139,7 +144,7 @@ function create_apps() {
                 "httpsServicePort": "443",
                 "backendType": "HTTPS",
                 "redirectHTTP": true,
-                "applicationName": "new app",
+                "applicationName": appname,
                 "serviceType": "HTTP",
                 "backendIp": "1.1.1.1",
                 "useExistingIp": true,
