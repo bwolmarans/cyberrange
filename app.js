@@ -292,11 +292,13 @@ function delete_apps(res2) {
     res2.end();
 }
 
-
 app.get('/delete_apps', function (req, res) {
-    if (appid_array.length == 0) { list_apps(); }
-        delete_apps(res);
+    if (appid_array.length == 0) {
+        list_apps_async_wrapper();
+    }
+    setTimeout(delete_apps, 5000, res);
 });
+
 
 
 function list_apps() {
@@ -345,11 +347,11 @@ function list_apps() {
 
 app.get('/list_apps', function (req, res) {
     globalres = res;
-    list_apps_async_wrapper_bullshit(res);
-        // this bullshit returns immediately ... holy cow
+    list_apps_async_wrapper(res);
+        // this bs returns immediately ... holy cow
 });
 
-async function list_apps_async_wrapper_bullshit(res) {
+async function list_apps_async_wrapper(res) {
         const results = await list_apps();
         console.log("=-=-=-=-=-=-=-=-=-=-=-=-=-=");
         console.log(results);
