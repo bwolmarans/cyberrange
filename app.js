@@ -1,4 +1,3 @@
-[centos@ip-10-0-1-234 myapp]$
 [centos@ip-10-0-1-234 myapp]$ cat app.js
 var express = require('express');
 global.globalres = '';
@@ -159,6 +158,7 @@ function build_instance_array(params) {
         });
 };
 
+
 function start_stop_em(action) {
 var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
  var params = {
@@ -292,13 +292,13 @@ function delete_apps(res2) {
     res2.end();
 }
 
+
 app.get('/delete_apps', function (req, res) {
     if (appid_array.length == 0) {
-        list_apps_async_wrapper();
+                list_apps_async_wrapper();
     }
     setTimeout(delete_apps, 5000, res);
 });
-
 
 
 function list_apps() {
@@ -348,15 +348,16 @@ function list_apps() {
 app.get('/list_apps', function (req, res) {
     globalres = res;
     list_apps_async_wrapper(res);
-        // this bs returns immediately ... holy cow
+        // this returns immediately ... holy cow
 });
 
 async function list_apps_async_wrapper(res) {
+        console.log("=-=-=-=-=-=-=-=-=-=-=-=-=-=");
         const results = await list_apps();
         console.log("=-=-=-=-=-=-=-=-=-=-=-=-=-=");
         console.log(results);
         //globalres.send(achetml);
-        res.send(achetml);
+        //res.send(achetml);
         console.log("=-=-=-=-=-=-=-=-=-=-=-=-=-=");
 }
 
@@ -375,9 +376,12 @@ app.put('/update-data', function (req, res) {
 //var certificate = fs.readFileSync('cert.pem', 'utf8');
 //var credentials = {key: privateKey, cert: certificate};
 // Certificate
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/labaas.cudathon.com/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/labaas.cudathon.com/cert.pem', 'utf8');
-const ca = fs.readFileSync('/etc/letsencrypt/live/labaas.cudathon.com/chain.pem', 'utf8');
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/partnerlab.cudathon.com/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/partnerlab.cudathon.com/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/partnerlab.cudathon.com/chain.pem', 'utf8');
+//const privateKey = fs.readFileSync('/etc/letsencrypt/live/labaas.cudathon.com/privkey.pem', 'utf8');
+//const certificate = fs.readFileSync('/etc/letsencrypt/live/labaas.cudathon.com/cert.pem', 'utf8');
+//const ca = fs.readFileSync('/etc/letsencrypt/live/labaas.cudathon.com/chain.pem', 'utf8');
 
 const credentials = {
         key: privateKey,
@@ -395,4 +399,3 @@ httpsServer.listen(443);
 console.log("running");
 
 [centos@ip-10-0-1-234 myapp]$
-
