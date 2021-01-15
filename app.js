@@ -16,6 +16,8 @@ var fs = require('fs');
 var login_token = "this will be our WAFaaS login token";
 var appid_array = [];
 var achetml = 'List of Application IDs<br>---------------------------<br>';
+var globalres;
+
 // At the top of your server.js
 process.env.PWD = process.cwd()
 
@@ -44,10 +46,24 @@ var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(__dirname + '/login.html');
 });
 
+app.post('/go', function (req, res) {
+    console.log(req.body.uuuu)
+    console.log(req.body.pppp)
+    if (req.body.uuuu == 'cudacudacuda' && req.body.pppp == 'cudacudacuda') {
+        res.sendFile(__dirname + '/index.html');
+        } else {
+                res.sendFile(__dirname + '/login.html');
+        }
+});
+
+
 app.post('/describe_aws_instances', function (req, res) {
+
+
+
 // Create EC2 service object
 var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
 
@@ -92,9 +108,10 @@ app.get('/start_backend', function (req, res) {
         }
         ]
     };
-    start_stop_wrapper('start', params);
-    res.writeHead(204);
-    res.end();
+    globalres = res;
+    ec2_start_stop_wrapper('start', params);
+    //res.writeHead(204);
+    //res.end();
 });
 
 app.get('/stop_backend', function (req, res) {
@@ -109,9 +126,10 @@ app.get('/stop_backend', function (req, res) {
         }
         ]
     };
-    start_stop_wrapper('stop', params);
-    res.writeHead(204);
-    res.end();
+    globalres = res;
+    ec2_start_stop_wrapper('stop', params);
+    //res.writeHead(204);
+    //res.end();
 });
 
 app.post('/startstop_aws_instance', function (req, res) {
@@ -127,23 +145,23 @@ app.post('/startstop_aws_instance', function (req, res) {
         ]
         };
     console.log("OK we clicked the mouse");
-        start_stop_wrapper(req.body.action, params);
+        ec2_start_stop_wrapper(req.body.action, params);
     res.writeHead(204);
     //res.end("We did your action: " + req.body.action);
     res.end();
 
 });
 
-async function start_stop_wrapper(action, params) {
+async function ec2_start_stop_wrapper(action, params) {
         console.log("we are now going to try to wait for the array to be built");
-        const results = await build_instance_array(params);
+        const results = await build_ec2_instance_array(params);
     console.log(results);
     console.log("we are going to start or stop em");
-        start_stop_em(action);
+        actually_start_stop_ec2(action);
         console.log("we have done our starting or stopping as it were");
 }
 
-function build_instance_array(params) {
+function build_ec2_instance_array(params) {
         instance_ids_array = [];
         return new Promise(resolve => {
                 var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
@@ -158,50 +176,57 @@ function build_instance_array(params) {
 };
 
 
-function start_stop_em(action) {
-var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
- var params = {
-  InstanceIds:instance_ids_array,
-  DryRun: true
- };
-
-if (action.toUpperCase() === "START") {
-  console.log("starting instances");
-  // Call EC2 to start the selected instances
-  ec2.startInstances(params, function(err, data) {
-    if (err && err.code == 'DryRunOperation') {
-      params.DryRun = false;
-      ec2.startInstances(params, function(err, data) {
-          if (err) {
-            console.log("Error", err);
-          } else if (data) {
-            console.log("Starting Instances good!", data.StartingInstances);
-            //res.send('Success: ' + JSON.stringify(data.StartingInstances));
-          }
-      });
-    } else {
-      console.log(err.code + " You don't have permission to start instances.");
-    }
-  });
-} else if (action.toUpperCase() === "STOP") {
-  console.log("stopping instances");
-  // Call EC2 to stop the selected instances
-  ec2.stopInstances(params, function(err, data) {
-    if (err && err.code === 'DryRunOperation') {
-      params.DryRun = false;
-      ec2.stopInstances(params, function(err, data) {
-          if (err) {
-            console.log("Error", err);
-          } else if (data) {
-            console.log("Success", data.StoppingInstances);
-            //res.send('Success: ' + JSON.stringify(data.StoppingInstances));
-          }
-      });
-    } else {
-      console.log("You don't have permission to stop instances");
-    }
-  });
-}
+function actually_start_stop_ec2(action) {
+        var ec2 = new AWS.EC2({apiVersion: '2016-11-15'});
+        var params = {
+                InstanceIds:instance_ids_array,
+                DryRun: true
+        };
+    var tmp = '';
+        if (action.toUpperCase() === "START") {
+          tmp = "starting backend instances";
+                console.log(tmp);
+          // Call EC2 to start the selected instances
+          ec2.startInstances(params, function(err, data) {
+                if (err && err.code == 'DryRunOperation') {
+                  params.DryRun = false;
+                  ec2.startInstances(params, function(err, data) {
+                          if (err) {
+                tmp = "Error: " + err;
+                                console.log(tmp);
+                          } else if (data) {
+                                tmp = "Starting Instances good! " + JSON.stringify(data.StartingInstances);
+                                console.log(tmp);
+                                globalres.send('Success: ' + JSON.stringify(data.StartingInstances));
+                          }
+                  });
+                } else {
+                  tmp = "You don't have permission to start instances."
+                        console.log(tmp);
+                }
+          });
+        } else if (action.toUpperCase() === "STOP") {
+          tmp = "stopping backend instances";
+                console.log(tmp);
+          // Call EC2 to stop the selected instances
+          ec2.stopInstances(params, function(err, data) {
+                if (err && err.code === 'DryRunOperation') {
+                  params.DryRun = false;
+                  ec2.stopInstances(params, function(err, data) {
+                          if (err) {
+                tmp = "Error: " + err;
+                                console.log(tmp);
+                          } else if (data) {
+                                tmp = "Stopping ec2 Success! " + JSON.stringify(data.StoppingInstances);
+                                console.log(tmp);
+                                globalres.send('Success: ' + JSON.stringify(data.StoppingInstances));
+                          }
+                  });
+                } else {
+                  tmp = "You don't have permission to stop instances"
+                }
+          });
+        }
 }
 
 
@@ -217,54 +242,64 @@ app.post('/login', function (req, res) {
         var postData = querystring.stringify({
     'email': req.body.username,
     'password': req.body.password
-});
-var options = {
-  hostname: 'api.waas.barracudanetworks.com',
-  port: 443,
-  path: '/v2/waasapi/api_login/',
-  method: 'POST',
-  headers: {
-       'Content-Type': 'application/x-www-form-urlencoded',
-       'Content-Length': postData.length
-     }
-};
-var req2 = https.request(options, (res2) => {
-  console.log('statusCode:', res2.statusCode);
-  console.log('headers:', res2.headers);
+        });
+        var options = {
+        hostname: 'api.waas.barracudanetworks.com',
+        port: 443,
+        path: '/v2/waasapi/api_login/',
+                method: 'POST',
+                headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Content-Length': postData.length
+        }
+        };
+        var req2 = https.request(options, (res2) => {
+                console.log('statusCode:', res2.statusCode);
+                console.log('headers:', res2.headers);
+                res2.on('data', (d) => {
+                        // interesting behavior: console.log(d);
+                        process.stdout.write(d);
+                        console.log('');
+                        var dobj = JSON.parse(d);
+                        login_token = dobj.key;
+                        console.log('---------------The below should be the API key / token YAY!-------------------------------------');
+                        console.log(login_token);
+                        // it says headers already sent - where?
+                        // res.send(login_token);
+                        console.log('----------------------------------------------------');
+                        //res.writeHead(302, { 'Location': 'https://waas.barracudanetworks.com/applications' });
+                        //res.end("We did your action: " + req.body.action);
+                        res.end(login_token);
+                });
+        });
 
-  res2.on('data', (d) => {
-    // interesting behavior: console.log(d);
-    process.stdout.write(d);
-    console.log('');
-    var dobj = JSON.parse(d);
-    login_token = dobj.key;
-    console.log('---------------The below should be the API key / token YAY!-------------------------------------');
-    console.log(login_token);
-    //res.send(login_token);
-    console.log('----------------------------------------------------');
-res.writeHead(302, { 'Location': 'https://waas.barracudanetworks.com/applications' });
-    //res.end("We did your action: " + req.body.action);
-    res.end();
-  });
-});
+        //req2.write('email=waas-student01%40bugbug.me&password=serenitynow_insanitylater');
+        console.log('email=' + encodeURIComponent(req.body.username) + '&password=' + encodeURIComponent(req.body.password));
+        req2.write('email=' + encodeURIComponent(req.body.username) + '&password=' + encodeURIComponent(req.body.password));
+        req2.on('error', (e) => {
+        console.error(e);
+        });
 
-//req2.write('email=waas-student01%40bugbug.me&password=serenitynow_insanitylater');
-console.log('email=' + encodeURIComponent(req.body.username) + '&password=' + encodeURIComponent(req.body.password));
- req2.write('email=' + encodeURIComponent(req.body.username) + '&password=' + encodeURIComponent(req.body.password));
-req2.on('error', (e) => {
-  console.error(e);
-});
-
-//curl -X POST "https://api.waas.barracudanetworks.com/v2/waasapi/api_login/" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "email=waas-student01%40bugbug.me&password=serenitynow_insanitylater"
+        //curl -X POST "https://api.waas.barracudanetworks.com/v2/waasapi/api_login/" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "email=waas-student01%40bugbug.me&password=serenitynow_insanitylater"
 //curl -X GET "https://api.waas.barracudanetworks.com/v2/waasapi/applications/" -H "accept: application/json" -H "auth-api: eyJhY2NfaWQiOiAxMDk1OTMwMSwgInVzZXJfaWQiOiA4NDE4NDE1NCwgImV4cGlyYXRpb24iOiAxNjA2ODU4Nzk4fQ==.dba1fecf39fc2c8c2cb8f67bc1fdbdf1829277ed9cc84630ff6e132ffcabff04"
 });
 
+app.post('/login_ajax', function (req, res) {
+console.log("distant shore");
+console.log(req.body.username)
+console.log(req.body.password)
+res.send("hello! " + req.body.username + " with password " + req.body.password);
+res.end();
+});
+
 function delete_apps(res2) {
+    var tmp = '';
     appid_array.forEach(async function(appid) {
 
         let xxx = "api.waas.barracudanetworks.com";
         let lll = '/v2/waasapi/applications/' + appid + '/';
         console.log("deleting " + xxx + " " + lll);
+        tmp = tmp + "deleting " + xxx + " " + lll + " | ";
 
         var options = {
           hostname: xxx,
@@ -288,7 +323,7 @@ function delete_apps(res2) {
 
     });
     //res2.writeHead(204);
-    //res2.end();
+    res2.send(tmp);
 }
 
 
@@ -297,7 +332,7 @@ app.get('/delete_apps', function (req, res) {
                 list_apps_async_wrapper(res);
     }
     setTimeout(delete_apps,3000, res);
-        setTimeout(list_apps_async_wrapper, 3000, res);
+        //setTimeout(list_apps_async_wrapper, 3000, res);
 });
 
 
