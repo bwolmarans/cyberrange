@@ -299,7 +299,7 @@ function delete_apps(res2) {
         let xxx = "api.waas.barracudanetworks.com";
         let lll = '/v2/waasapi/applications/' + appid + '/';
         console.log("deleting " + xxx + " " + lll);
-        tmp = tmp + "deleting " + xxx + " " + lll + " | ";
+        tmp = tmp + "deleting " + xxx + " " + lll + "<br>";
 
         var options = {
           hostname: xxx,
@@ -323,7 +323,7 @@ function delete_apps(res2) {
 
     });
     //res2.writeHead(204);
-    res2.send(tmp);
+    res2.end(tmp);
 }
 
 
