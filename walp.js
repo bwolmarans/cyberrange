@@ -1,42 +1,3 @@
-[centos@ip-10-0-1-234 myapp]$ node walp.js
-statusCode: 200
----------------The below should be the API key / token YAY!-------------------------------------
-eyJleHBpcmF0aW9uIjogMTYwNzAyNDYyMSwgImFjY19pZCI6IDEwOTU5MzAxLCAidXNlcl9pZCI6IDg0MTg0MTU0fQ==.ef28bb5d955b3a798e9ae2d7b2bed1e3a8d569beedd87403c64d39013e897f8c
-----------------------------------------------------
-List_apps login_token: eyJleHBpcmF0aW9uIjogMTYwNzAyNDYyMSwgImFjY19pZCI6IDEwOTU5MzAxLCAidXNlcl9pZCI6IDg0MTg0MTU0fQ==.ef28bb5d955b3a798e9ae2d7b2bed1e3a8d569beedd87403c64d39013e897f8c
-create_apps statusCode: 201
-headers: {
-  date: 'Thu, 03 Dec 2020 18:43:43 GMT',
-  'content-type': 'application/json',
-  'content-length': '91',
-  connection: 'close',
-  'set-cookie': [
-    'AWSALB=W+1oFj7y0IMlrx67a3pceGViDOUmRU+wWYi7xtDpZjrVHuauI/5syNQleXoMrcXWdfFsU00knfp6m/GlHW1rTLE0gZlAVjSTgJW/kfF7Om3dBqGFBItufUpTK8Ya; Expires=Thu, 10 Dec 2020 18:43:41 GMT; Path=/',
-    'AWSALBCORS=W+1oFj7y0IMlrx67a3pceGViDOUmRU+wWYi7xtDpZjrVHuauI/5syNQleXoMrcXWdfFsU00knfp6m/GlHW1rTLE0gZlAVjSTgJW/kfF7Om3dBqGFBItufUpTK8Ya; Expires=Thu, 10 Dec 2020 18:43:41 GMT; Path=/; SameSite=None; Secure',
-    'sessionid=79h4c38gbu5roajxrmy80gwneswt7s8c; HttpOnly; Path=/; SameSite=Lax; Secure'
-  ],
-  server: 'nginx',
-  'x-frame-options': 'SAMEORIGIN',
-  allow: 'GET, POST, HEAD, OPTIONS',
-  vary: 'Cookie',
-  'strict-transport-security': 'max-age=604800; includeSubDomains; preload'
-}
-List_Apps statusCode: 200
-----> [object Object]
-Here in list apps and the app named new app has an I.D. of -> 9157
-Here in list apps and the app named new app has an I.D. of -> 9158
-Here in list apps and the app named new app has an I.D. of -> 9159
-Here in list apps and the app named new app has an I.D. of -> 9160
-Here in list apps and the app named new app has an I.D. of -> 9161
-Here in list apps and the app named new app has an I.D. of -> 9162
-Here in list apps and the app named new app has an I.D. of -> 9163
-Here in list apps and the app named new app has an I.D. of -> 9164
-Here in list apps and the app named new app has an I.D. of -> 9165
-Here in list apps and the app named new app has an I.D. of -> 9166
-Here in list apps and the app named new app has an I.D. of -> 9167
-Here in list apps and the app named new app has an I.D. of -> 9168
-Here in list apps and the app named new app has an I.D. of -> 9169
-Here in list apps and the app named new app has an I.D. of -> 9170
 [centos@ip-10-0-1-234 myapp]$ cat walp.js
 var express = require('express');
 var app = express();
@@ -45,9 +6,12 @@ var querystring = require('querystring');
 var login_token = '';
 var appid_array = [];
 
-function dream1() { console.log("dream1"); create_app('death_on_the_nile_dot_edu'); setTimeout(dream2, 3000); }
-function dream2() { console.log("dream2"); create_app('before_the_flood_dot_cc'); setTimeout(dream3, 3000); }
-function dream3() { console.log("dream3"); create_app('express_app_dot_com'); }
+
+function dream0() { console.log("dream0"); setTimeout(dream1, 5000); }
+function dream1() { console.log("dream1"); create_app('django_dot_edu'); setTimeout(dream2, 5000); }
+function dream2() { console.log("dream2"); create_app('death_on_the_nile_dot_edu'); setTimeout(dream3, 4000); }
+function dream3() { console.log("dream3"); create_app('before_the_flood_dot_cc'); setTimeout(dream4, 4000); }
+function dream4() { console.log("dream4");  create_app('cudathon_cc'); }
 
 
 function list_apps() {
@@ -88,11 +52,11 @@ function list_apps() {
     req.end();
 }
 
-function login() {
+async function login(email, password) {
 
     var postdata = querystring.stringify({
-        'email': 'waas-student01@bugbug.me',
-        'password': 'serenitynow_insanitylater'
+        'email': email,
+        'password': password
     });
     var options = {
         hostname: 'api.waas.barracudanetworks.com',
@@ -113,15 +77,14 @@ function login() {
             login_token = dobj.key;
             console.log('---------------The below should be the API key / token YAY!-------------------------------------');
             console.log(login_token);
-            console.log('----------------------------------------------------');
-            setTimeout(dream1,3000);  
-          list_apps();
+        setTimeout(dream0,10000);
+            list_apps();
+        });
         });
 
 
-    });
-
-    req.write("email=waas-student01%40bugbug.me&password=serenitynow_insanitylater");
+    console.log('email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password));
+    req.write('email=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password));
     //console.log('email=' + encodeURIComponent('waas-student01@bugbug.me') + '&password=' + encodeURIComponent('serenitynow_insanitylater'));
 
     req.on('error', (e) => { console.error(e); });
@@ -133,22 +96,22 @@ function login() {
 
 }
 
-function create_app(appname) {
+async function create_app(appname) {
 
     var body = JSON.stringify(
         {
                 "useHttp": true,
                 "backendPort": 443,
                 "serviceIp": "2.2.2.2",
-                "hostnames": [ { "hostname": "8.8.8.8" } ],
-                "httpsServicePort": "443",
-                "backendType": "HTTPS",
-                "redirectHTTP": true,
+                "hostnames": [ { "hostname": "www.wolmarans.com" } ],
+                "httpsServicePort": "80",
+                "backendType": "HTTP",
+                "redirectHTTP": false,
                 "applicationName": appname,
                 "serviceType": "HTTP",
-                "backendIp": "1.1.1.1",
+                "backendIp": "23.239.5.221",
                 "useExistingIp": true,
-                "useHttps": true,
+                "useHttps": false,
                 "account_ips": {},
                 "httpServicePort": 80,
                 "maliciousTraffic": "Passive"
@@ -170,7 +133,7 @@ function create_app(appname) {
 
 
     var req = https.request(options, res => {
-        console.log("create_apps statusCode: " + res.statusCode)
+        console.log("create_app statusCode: " + res.statusCode)
         console.log('headers:', res.headers);
     })
 
@@ -180,7 +143,8 @@ function create_app(appname) {
     req.end();
 }
 
-login();
+var myArgs = process.argv.slice(2);
+email = myArgs[0];
+password = myArgs[1];
+login(email, password);
 [centos@ip-10-0-1-234 myapp]$
-
-
