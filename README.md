@@ -7,7 +7,7 @@ export AWS_ACCESS_KEY_ID=access
 
 The sudo -E is because there was some nasty issues running as root and of course it's a pain to run low ports as a user
 
-sudo -E nodemon app.js
+sudo -E nodemon partnerlab.js
 
 
 
