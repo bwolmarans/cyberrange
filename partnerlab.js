@@ -6,6 +6,7 @@ var http = require('http');
 var fs = require('fs');
 var shell = require('shelljs');
 var util = require('util');
+var got = require('got');
 
 var app = express();
 var redirectToHTTPS = require('express-http-to-https').redirectToHTTPS
@@ -16,6 +17,7 @@ var instance_ids_array = [];
 
 var login_token = "this will be our WAFaaS login token";
 var appid_array = [];
+var appname_array = [];
 var achetml = 'List of Application IDs<br>---------------------------<br>';
 var globalres;
 
@@ -235,10 +237,8 @@ function actually_start_stop_ec2(action) {
 //    res.send('<html><body><h1>Hello World</h1></body></html>');
 //});
 
-app.post('/login', function (req, res) {
-        console.log(req.body.username)
-        console.log(req.body.password)
 
+async function login_to_waas(req, res2) {
         var querystring = require('querystring');
         var postData = querystring.stringify({
     'email': req.body.username,
@@ -248,52 +248,28 @@ app.post('/login', function (req, res) {
         hostname: 'api.waas.barracudanetworks.com',
         port: 443,
         path: '/v2/waasapi/api_login/',
-                method: 'POST',
-                headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Content-Length': postData.length
-        }
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': postData.length },
+        body: 'email=' + encodeURIComponent(req.body.username) + '&password=' + encodeURIComponent(req.body.password)
         };
-        var req2 = https.request(options, (res2) => {
-                console.log('statusCode:', res2.statusCode);
-                console.log('headers:', res2.headers);
-                res2.on('data', (d) => {
-                        // interesting behavior: console.log(d);
-                        process.stdout.write(d);
-                        console.log('');
-                        var dobj = JSON.parse(d);
-                        login_token = dobj.key;
-                        console.log('---------------The below should be the API key / token YAY!-------------------------------------');
-                        console.log(login_token);
-                        // it says headers already sent - where?
-                        // res.send(login_token);
-                        console.log('----------------------------------------------------');
-                        //res.writeHead(302, { 'Location': 'https://waas.barracudanetworks.com/applications' });
-                        //res.end("We did your action: " + req.body.action);
-                        res.end(login_token);
-                });
-        });
-
-        //req2.write('email=waas-student01%40bugbug.me&password=serenitynow_insanitylater');
+        res = await got(options);
+        console.log('statusCode:', res.statusCode);
         console.log('email=' + encodeURIComponent(req.body.username) + '&password=' + encodeURIComponent(req.body.password));
-        req2.write('email=' + encodeURIComponent(req.body.username) + '&password=' + encodeURIComponent(req.body.password));
-        req2.on('error', (e) => {
-        console.error(e);
-        });
+        console.log('');
+        var bunch_of_json = JSON.parse(res.body);
+        login_token = bunch_of_json.key;
+        console.log('---------------The below should be the API key / token YAY!-------------------------------------');
+        console.log(login_token);
+        console.log('------------------------------------------------------------------------------------------------');
+        res2.end(login_token);
+        //req2.write('email=waas-student01%40bugbug.me&password=serenitynow_insanitylater');
 
         //curl -X POST "https://api.waas.barracudanetworks.com/v2/waasapi/api_login/" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "email=waas-student01%40bugbug.me&password=serenitynow_insanitylater"
-//curl -X GET "https://api.waas.barracudanetworks.com/v2/waasapi/applications/" -H "accept: application/json" -H "auth-api: eyJhY2NfaWQiOiAxMDk1OTMwMSwgInVzZXJfaWQiOiA4NDE4NDE1NCwgImV4cGlyYXRpb24iOiAxNjA2ODU4Nzk4fQ==.dba1fecf39fc2c8c2cb8f67bc1fdbdf1829277ed9cc84630ff6e132ffcabff04"
-});
+        //curl -X GET "https://api.waas.barracudanetworks.com/v2/waasapi/applications/" -H "accept: application/json" -H "auth-api: eyJhY2NfaWQiOiAxMDk1OTMwMSwgInVzZXJfaWQiOiA4NDE4NDE1NCwgImV4cGlyYXRpb24iOiAxNjA2ODU4Nzk4fQ==.dba1fecf39fc2c8c2cb8f67bc1fdbdf1829277ed9cc84630ff6e132ffcabff04"
 
-app.post('/login_ajax', function (req, res) {
-console.log("distant shore");
-console.log(req.body.username)
-console.log(req.body.password)
-res.send("hello! " + req.body.username + " with password " + req.body.password);
-res.end();
-});
+}
 
-function delete_apps(res2) {
+async function delete_apps(req, res2) {
     var tmp = '';
     appid_array.forEach(async function(appid) {
 
@@ -307,93 +283,101 @@ function delete_apps(res2) {
           port: 443,
           path: lll,
           method: 'DELETE',
-          headers: {
-               'accept': 'application/json',
-               'auth-api': login_token
-                }
+          headers: { 'accept': 'application/json', 'auth-api': login_token }
         }
-        var req = https.request(options, res => {
-                console.log('statusCode: '+ res.statusCode);
-                        const index = appid_array.indexOf(appid);
-                        if (index > -1) { appid_array.splice(index, 1); }
-
-        });
-
-                req.on('error', error => { console.error(error) })
-                req.end();
-
+        var res = await got(options);
+            console.log('statusCode: '+ res.statusCode);
+                const index = appid_array.indexOf(appid);
+                if (index > -1) { appid_array.splice(index, 1); }
     });
-    //res2.writeHead(204);
-    res2.end(tmp);
+        res2.end(tmp);
 }
 
+async function list_apps(req, res2) {
+        var options = {
+        hostname: 'api.waas.barracudanetworks.com',
+        port: 443,
+        path: '/v2/waasapi/applications/',
+        method: 'GET',
+        headers: { 'accept': 'application/json', 'auth-api': login_token }
+        }
+        appid_array.length = 0;
+        appname_array.length = 0;
+        var res = await got(options);
+        console.log("statusCode: " + res.statusCode)
+        let d = JSON.parse(res.body);
+        var ressis = d.results;
+        if(ressis){
+        achetml = '<div class="lbb">';
+        for(var r of ressis) {
+                console.log("About to push to array an appid of -> " + r.id + " and name " + r.name );
+                appid_array.push(r.id);
+                appname_array.push(r.name);
+                achetml = achetml + '<div>name: ' + r.name + ' id: ' + r.id + '</div>';
+        }
+        achetml = achetml + '</div>';
+        console.log(achetml);
+        } else {
+                console.log("no apps found, maybe you did not log in ?");
+        achetml = "no apps found, maybe you did not log in ?"
+    }
+        return achetml
+}
+
+async function show_endpoints (req, res2) {
+        console.log('here')
+        console.log('here')
+        console.log('here')
+        achetml = '';
+        for (let appid of appid_array) {
+                console.log(appid)
+                var options = {
+                hostname: 'api.waas.barracudanetworks.com',
+                port: 443,
+                path: '/v2/waasapi/applications/' + appid + '/endpoints/?page=1',
+                timeout: 1100,
+                method: 'GET', headers: { 'accept': 'application/json', 'auth-api': login_token }
+                }
+                res = await got(options);
+                bunch_of_json = JSON.parse(res.body);
+                boj = bunch_of_json
+                console.log(boj.results[0]);
+                for (var ep of boj.results) {
+                        console.log(ep.cname);
+                achetml = achetml + '<div class="lbb">';
+                    achetml = achetml + ep.cname;
+                    achetml = achetml + '</div>'
+                }
+                //boj = JSON.stringify(boj)
+        }
+        console.log(achetml);
+        return achetml;
+}
+
+app.post('/login_ajax', function (req, res) {
+console.log("distant shore");
+console.log(req.body.username)
+console.log(req.body.password)
+res.send("hello! " + req.body.username + " with password " + req.body.password);
+res.end();
+});
+
+app.post('/login', async function (req, res) {
+        console.log(req.body.username)
+        console.log(req.body.password)
+        login_to_waas(req, res)
+})
+
+app.get('/list_apps', async function (req, res) {
+    achetml = await list_apps(req, res);
+        achetml = await show_endpoints(req, res);
+        res.end(achetml);
+});
 
 app.get('/delete_apps', function (req, res) {
-    if (appid_array.length == 0) {
-                list_apps_async_wrapper(res);
-    }
-    setTimeout(delete_apps,3000, res);
-        //setTimeout(list_apps_async_wrapper, 3000, res);
+    if (appid_array.length == 0) { list_apps(); }
+    delete_apps(req, res);
 });
-
-
-function list_apps() {
-        return new Promise(resolve => {
-                console.log("I promise to return the list of apps.")
-                var options = {
-                        hostname: 'api.waas.barracudanetworks.com',
-                        port: 443,
-                        path: '/v2/waasapi/applications/',
-                        method: 'GET',
-                        headers: {
-                                'accept': 'application/json',
-                                'auth-api': login_token
-                        }
-                }
-                appid_array.length = 0;
-                var req = https.request(options, res => {
-                        console.log("List_Apps statusCode: " + res.statusCode)
-                        //console.log('headers:', res.headers);
-
-                        let chunks = [];
-                        res.on('data', d => { chunks.push(d); })
-                        res.on('end', function() {
-                                let data = Buffer.concat(chunks);
-                                let d = JSON.parse(data);
-                                var ressis = d.results;
-                                if(ressis){
-                                        achetml = '<div class="tight-text">';
-                                        for(var r of ressis) {
-                                                console.log("About to push to array an appid of -> " + r.id);
-                                                appid_array.push(r.id);
-                                                achetml = achetml + '<div>name: ' + r.name + ' id: ' + r.id + '</div>';
-                                        }
-                                        achetml = achetml + '</div>';
-                                        console.log("phew, got em!");
-                                        resolve("list apps Resolved! " + appid_array);
-                                } else {
-                                        resolve("no apps, sorry.");
-                                        console.log("no apps found, maybe you did not log in ?");
-                                }
-                        })
-                })
-
-                req.on('error', error => { console.error(error) });
-                req.end();
-    })
-}
-
-
-app.get('/list_apps', function (req, res) {
-    list_apps_async_wrapper(res);
-});
-
-async function list_apps_async_wrapper(res) {
-        const results = await list_apps();
-        console.log(results);
-        res.send(achetml);
-        res.end;
-}
 
 app.put('/update-data', function (req, res) {
     res.send('PUT Request');
