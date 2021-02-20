@@ -7,6 +7,7 @@ var fs = require('fs');
 var shell = require('shelljs');
 var util = require('util');
 var got = require('got');
+var sha256 = require('js-sha256');
 
 var app = express();
 var redirectToHTTPS = require('express-http-to-https').redirectToHTTPS
@@ -55,11 +56,19 @@ app.get('/', function (req, res) {
 app.post('/go', function (req, res) {
     console.log(req.body.uuuu)
     console.log(req.body.pppp)
-    if (req.body.uuuu == 'cudacudacuda' && req.body.pppp == 'cudacudacuda') {
-        res.sendFile(__dirname + '/index.html');
+    var hashcakes = sha256.create();
+    hashcakes.update(req.body.uuuu);
+    var hotdogs = sha256.create();
+    hotdogs.update(req.body.pppp);
+    if (hashcakes == 'a03e2b3b4131f8425d334e5f7f44e951f4d79f1c72ffd4fda634d57b5e6abef0' ) {
+        if (hotdogs == 'a03e2b3b4131f8425d334e5f7f44e951f4d79f1c72ffd4fda634d57b5e6abef0') {
+            res.sendFile(__dirname + '/index.html');
         } else {
-                res.sendFile(__dirname + '/login.html');
+            res.sendFile(__dirname + '/login.html');
         }
+    } else {
+        res.sendFile(__dirname + '/login.html');
+    }
 });
 
 
