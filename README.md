@@ -1,4 +1,7 @@
 
+Main program: partnerlab.js and index.html
+These call some of the other programs, look at the code to determine which.
+
 export AWS_PROFILE=testuser
 export AWS_DEFAULT_REGION=us-east-1
 export AWS_SECRET_ACCESS_KEY=secret
