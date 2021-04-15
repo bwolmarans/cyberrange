@@ -1,10 +1,29 @@
-[centos@ip-10-0-1-234 partnerlab]$ cat index.html
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta charset="utf-8" />
 <title></title>
 <style>
+a:link {
+  color: green;
+  background-color: transparent;
+  text-decoration: none;
+}
+a:visited {
+  color: chartreuse;
+  background-color: transparent;
+  text-decoration: none;
+}
+a:hover {
+  color: red;
+  background-color: transparent;
+  text-decoration: underline;
+}
+a:active {
+  color: yellow;
+  background-color: transparent;
+  text-decoration: underline;
+}
         .myButton {
                 box-shadow: 0px 10px 14px -7px #276873;
                 background:linear-gradient(to bottom, #589bbe 5%, #408c99 100%);
@@ -139,32 +158,32 @@ Step 1: Start the server that runs <a href="http://badstore.cudathon.com:8080" t
 </div>
 <div id=statusarea3></div>
 <div class="list-text">
-        Step 4: Start Learning! Click here for <a href="https://barracudacorp-my.sharepoint.com/:w:/r/personal/gmchugh_barracuda_com/_layouts/15/Doc.aspx?sourcedoc=%7BAD5E9B3A-16F4-4255-AA9E-68CFB624CEE7%7D&file=FINAL%20WAFaaS%20Lab%20Guide%20-%20Intermediate.docx&wdLOR=c7F1E9985-9F5E-4891-B551-FD5752FF5B05&action=default&mobileredirect=true" target="_blank"><b> BADSTORE LAB GUIDE </b></a> and <a href="http://52.53.255.67/moodle/mod/book/view.php?id=9" target="_blank"><b> PETSTORE API LAB GUIDE </b></a><br>
+        Step 4: Start Learning! Click here for <a href="https://barracudacorp-my.sharepoint.com/:w:/r/personal/gmchugh_barracuda_com/_layouts/15/Doc.aspx?sourcedoc=%7BAD5E9B3A-16F4-4255-AA9E-68CFB624CEE7%7D&file=FINAL%20WAFaaS%20Lab%20Guide%20-%20Intermediate.docx&wdLOR=c7F1E9985-9F5E-4891-B551-FD5752FF5B05&action=default&mobileredirect=true" target="_blank"><b> BADSTORE LAB GUIDE </b></a> and <a href="http://52.53.255.67/moodle/mod/book/view.php?id=9" target="_blank"><b> PETSTORE API LAB GUIDE </b> ( barracuda / AWSDevdays***! ) </a><br>
 </div>
 <!-- petstore is barracuda / AWSDevdays123!  -->
 <div class="list-text">
         <!--
     Step 5: Login to Kali here: <a href=ssh://ec2-user;--ssh-agent=eechpbnaifiimgajnomdipfaamobdfha@kali.brett1.com>ssh ec2-user@kali.brett1.com</a> ( SE will provide credentials )
         -->
-    Step 5 ( Optional -you can skip this step): Login to Kali here: <a href=ssh:// ddd target="_blank">ssh ec2-user@kali.brett1.com</a> ( SE will provide credentials )
+    Step 5 ( Optional -you should probably skip this step): Login to Kali here: <a href=ssh:// ddd target="_blank">ssh ec2-user@kali.brett1.com</a> ( SE will provide credentials )
 </div>
 <div class="list-text">
-    Step 6 - launch attacks against unprotected origin server ( aka Backend Server )
+    Step 6 - launch attacks against unprotected origin server ( aka the web server without a WAF in front of it )
 </div>
 <div class="list-text">
-    Launch Hydra against badstore-origin by clicking here: <a href="https://partnerlab.cudathon.com/hydra_badstore-origin" target="_blank"> Hydra badstore-origin!  </a>
+    Launch Hydra against badstore-origin.cudathon.com: <a href="https://partnerlab.cudathon.com/hydra_badstore-origin" target="_blank"> Hydra badstore-origin.cudathon.com!  </a>
 </div>
 <div class="list-text">
-    Launch SqlMap against badstore-origin by clicking here: <a href="https://partnerlab.cudathon.com/sqlmap_badstore-origin" target="_blank"> Sqlmap badstore-origin!  </a><br>
+    Launch SqlMap against badstore-origin.cudathon.com: <a href="https://partnerlab.cudathon.com/sqlmap_badstore-origin" target="_blank"> Sqlmap badstore-origin.cudathon.com!  </a><br>
 </div>
 <div class="list-text">
-    Step 7 - launch the same attacks against the WAF proxy which is protecting the backend server
+    Step 7 - launch the same attacks against the WAFaaS proxy which is protecting the backend server
 </div>
 <div class="list-text">
-    Launch Hydra against badstore-wafaas by clicking here: <a href="https://partnerlab.cudathon.com/hydra_badstore-wafaas" target="_blank"> Hydra badstore-wafaas!  </a>
+    Launch Hydra ( repeat ~5 times & DDOS->Web Scraping->JS insertion ON ) against badstore-wafaas.cudathon.com: <a href="https://partnerlab.cudathon.com/hydra_badstore-wafaas" target="_blank"> Hydra badstore-wafaas.cudathon.com!  </a>
 </div>
 <div class="list-text">
-    Launch SqlMap against badstore-wafaas by clicking here: <a href="https://partnerlab.cudathon.com/sqlmap_badstore-wafaas" target="_blank"> Sqlmap badstore-wafaas!  </a>
+    Launch SqlMap against badstore-wafaas.cudathon.com: <a href="https://partnerlab.cudathon.com/sqlmap_badstore-wafaas" target="_blank"> Sqlmap badstore-wafaas.cudathon.com!  </a>
 </div>
 <div class="lbb" id="statusarea"></div>
 
@@ -213,4 +232,3 @@ Step 1: Start the server that runs <a href="http://badstore.cudathon.com:8080" t
 
 </body>
 </html>
-[centos@ip-10-0-1-234 partnerlab]$
