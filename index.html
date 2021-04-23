@@ -29,14 +29,14 @@ div {
 #statusarea {
     font-size: x-small;
     height: 200px; width: 700px;
-word-wrap: break-word;
+        word-wrap: break-word;
     float: right;
     border-color: red;
     margin-left: 10px;
 }
 #header {
 background: url(header-image.png) ;
-height: 120px;
+height: 90px;
 }
 
 #footer { clear: all; }
@@ -51,12 +51,10 @@ height: 120px;
 <div id="container">
 <div id="statusarea" style="color:white;"> </div>
 <div class="article" style="color:white;">
-        <br><br><h1 style="color:white;"> Partner Lab Admin Console - Barracuda WAFaaS</h1>
-<br>
+        <h1 style="color:white;"> WAFaaS/WAF Americas Partner Lab Admin Console</h1>
         Partner Edition. Beta Version 4.0
         This self-service lab allows Barracud SE's to spin up/spin down a WAFaaS training lab for partners.
         You are going to use Petstore and Badstore as your target applications to attack.
-<br>
 <br>
     Step 1: Start the server that runs <a href="http://badstore-origin.cudathon.com:8080" target="_blank">Petstore API</a> and <a href="http://badstore-origin.cudathon.com" target="_blank">Badstore</a>
 <button type="button" class="myButton" onclick="doAjax('/start_backend', ajaxfunction1, statusarea)">Start Server</button>
@@ -76,15 +74,17 @@ height: 120px;
         <button type="button" class="myButton" onclick="doAjax('/delete_apps', ajaxfunction3, statusarea)">Start Fresh</button>
 <br>
 <br>
-        Step 4: Start Learning! Click here for <a href="https://barracudacorp-my.sharepoint.com/:w:/r/personal/gmchugh_barracuda_com/_layouts/15/Doc.aspx?sourcedoc=%7BAD5E9B3A-16F4-4255-AA9E-68CFB624CEE7%7D&file=FINAL%20WAFaaS%20Lab%20Guide%20-%20Intermediate.docx&wdLOR=c7F1E9985-9F5E-4891-B551-FD5752FF5B05&action=default&mobileredirect=true" target="_blank"><b> BADSTORE LAB GUIDE </b></a> and <a href="http://52.53.255.67/moodle/mod/book/view.php?id=9" target="_blank"><b> PETSTORE API LAB GUIDE </b> ( barracuda / AWSDevdays***! ) </a><br>
+        Step 4: Start Learning! Click here for <a href="https://github.com/bwolmarans/cyberrange/raw/main/WAFaaS%20Lab%20Guide_May2021.pdf" target="_blank"><b> WAFaaS Badstore Lab Guide </b></a> and <a href="https://github.com/bwolmarans/cyberrange/raw/main/WAF%20Petstore%20API%20Lab%20Guide.pdf" target="_blank"><b> WAF Petstore API Lab Guide</b></a><br>
+
+<h1 style="color:white;"> WAFaaS Canned Demos </h1>
+
+    Demo 1 ( Optional -you should probably skip this step): Login to Kali here: <a href=ssh:// ddd target="_blank">ssh ec2-user@kali.brett1.com</a> ( SE will provide credentials )<br>
 <br>
-    Step 5 ( Optional -you should probably skip this step): Login to Kali here: <a href=ssh:// ddd target="_blank">ssh ec2-user@kali.brett1.com</a> ( SE will provide credentials )<br>
-<br>
-    Step 6 - launch attacks against unprotected origin server ( aka the web server without a WAF in front of it )<br>
+    Demo 2 - launch attacks against the unprotected origin server ( aka the web server without a WAF in front of it )<br><br>
     Launch Hydra against badstore-origin.cudathon.com: <a href="https://partnerlab.cudathon.com/hydra_badstore-origin" target="_blank"> Hydra badstore-origin.cudathon.com!  </a><br>
     Launch SqlMap against badstore-origin.cudathon.com: <a href="https://partnerlab.cudathon.com/sqlmap_badstore-origin" target="_blank"> Sqlmap badstore-origin.cudathon.com!  </a><br>
 <br>
-    Step 7 - launch the same attacks against the WAFaaS proxy which is protecting the backend server<br>
+    Demo 3 - launch the same attacks against the WAFaaS proxy which is protecting the backend server<br><br>
     Launch Hydra ( repeat ~5 times & DDOS->Web Scraping->JS insertion ON ) against badstore-wafaas.cudathon.com: <a href="https://partnerlab.cudathon.com/hydra_badstore-wafaas" target="_blank"> Hydra badstore-wafaas.cudathon.com!  </a><br>
     Launch SqlMap against badstore-wafaas.cudathon.com: <a href="https://partnerlab.cudathon.com/sqlmap_badstore-wafaas" target="_blank"> Sqlmap badstore-wafaas.cudathon.com!  </a><br>
 </div>
