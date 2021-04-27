@@ -1,0 +1,8 @@
+<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:examples:usernameservice">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <urn:Username soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+         <username xsi:type="xsd:string">gero et</username>
+      </urn:Username>
+   </soapenv:Body>
+</soapenv:Envelope>
