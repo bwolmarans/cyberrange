@@ -1,0 +1,145 @@
+root@ip-172-31-8-35:/home/admin/cyberrange# cat index.html
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8" />
+<title></title>
+<style>
+a:link {
+  color: white;
+}
+a:hover {
+  color: red;
+}
+/* visited link */
+a:visited {
+  color: white;
+}
+div {
+font-family: Verdana, sans-serif;
+    border: 0px solid;
+    margin: 0px;
+    padding: 10px;
+    min-height: 10px;
+}
+
+#container {
+    background: url("background.png");
+    clear: all;
+}
+
+#article {
+    border-color: green;
+    margin-right: 100px;
+}
+
+#statusarea {
+    font-size: x-small;
+    height: 400px; width: 70%;
+    overflow:auto;
+    word-wrap: break-word;
+    float: right;
+    background: black;
+    outline: 5px ridge green;
+    margin-left: 10px;
+}
+#header {
+background: url(header-image.png) ;
+height: 90px;
+}
+
+#footer { clear: all; }
+</style>
+</head>
+<body>
+<div id="header"></div>
+<div id="container">
+<div id="statusarea" style="color:white;"> </div>
+<div class="article" style="color:white;">
+<h1 style="color:white;">Barracuda CyberRange</h1>
+beta version 5<br>
+This software allows you to test for vunerabilities within applicable laws and in a test environment only.<br>
+<br>
+Test the unprotected site<br>
+http://badstore-origin.cudathon.com
+<br>
+<button type="button" class="myButton" onclick="doAjax('/hydra_badstore-origin', ajaxfunction1, statusarea)">Hydra</button>
+<button type="button" class="myButton" onclick="doAjax('/sqlmap_badstore-origin', ajaxfunction1, statusarea)">Sqlmap</button>
+<button type="button" class="myButton" onclick="doAjax('/stealadmincookie_badstore-origin', ajaxfunction1, statusarea)">Steal admin SSOid cookie</button>
+<br>
+<br>
+Test the protected site<br>
+https://badstore-wafaas.cudathon.com
+<br>
+<button type="button" class="myButton" onclick="doAjax('/hydra_badstore-wafaas', ajaxfunction1, statusarea)">Hydra</button>
+<button type="button" class="myButton" onclick="doAjax('/sqlmap_badstore-wafaas', ajaxfunction1, statusarea)">Sqlmap</button>
+<button type="button" class="myButton" onclick="doAjax('/stealadmincookie_badstore-wafaas', ajaxfunction1, statusarea)">Steal admin SSOid cookie</button>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</div>
+</div>
+<script>
+
+        function doAjax(url, cFunction, mydiv) {
+                var xhttp;
+                xhttp=new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4 && this.status == 200) {
+                          cFunction(mydiv, this);
+                        }
+                };
+                xhttp.open("GET", url, true);
+                xhttp.send();
+        }
+
+        function doAjaxPost(url, cFunction, mydiv) {
+                var xhttp;
+                xhttp=new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                        //document.getElementById("statusarea1").innerHTML = this.readyState;
+                        if (this.readyState == 4 && this.status == 200) {
+                                cFunction(mydiv, this);
+                        }
+                };
+                xhttp.open("POST", "/login", true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                var usernameValue = document.getElementById("username").value;
+                var passwordValue = document.getElementById("password").value;
+                xhttp.send('username=' + usernameValue + '&password=' + passwordValue);
+        }
+
+        function ajaxfunction1(mydiv, xhttp) {
+                //mydiv problem it comes through as [object HTMLDivElement] and I can't seem to get the value of it so hard-coding the divs here
+          document.getElementById("statusarea").innerHTML = xhttp.responseText;
+        }
+        function ajaxfunction2(mydiv, xhttp) {
+          document.getElementById("statusarea").innerHTML = xhttp.responseText;
+        }
+        function ajaxfunction3(mydiv, xhttp) {
+          document.getElementById("statusarea").innerHTML = xhttp.responseText;
+        }
+
+</script>
+<div id="footer"> </div>
+</body>
+</html>
+root@ip-172-31-8-35:/home/admin/cyberrange#
