@@ -1,4 +1,3 @@
-[centos@ip-10-0-1-234 partnerlab]$ cat partnerlab.js
 var express = require('express');
 var events = require('events');
 var https = require('https');
